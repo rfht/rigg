@@ -14,8 +14,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+#define STR_MAX		1024
 
 __dead int usage(void) {
 	fprintf(stderr,
@@ -25,6 +30,30 @@ __dead int usage(void) {
 }
 
 int main(int argc, char** argv) {
-	usage();
+	int vflag, ch;
+	char eflag[STR_MAX] = "\0", gflag[STR_MAX] = "\0";
+
+	vflag = 0;
+	while ((ch = getopt(argc, argv, "e:g:hv")) != -1) {
+		switch (ch) {
+		case 'e':
+			if (strlcpy(eflag, optarg, sizeof(eflag)) >= sizeof(eflag))
+				err(1, "strlcpy");
+			break;
+		case 'g':
+			if (strlcpy(gflag, optarg, sizeof(gflag)) >= sizeof(gflag))
+				err(1, "strlcpy");
+			break;
+		case 'v':
+			break;
+		case 'h':
+		default:
+			usage();
+		}
+	}
+	argc -= optind;
+	argv += optind;
+
+	printf("eflag: %s, gflag: %s\n", eflag, gflag);
 	return 0;
 }
