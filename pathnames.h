@@ -1,3 +1,5 @@
+/* pathnames.h -- absolute filenames that rigg wants for various defaults. */
+
 /*
  * Copyright (c) 2023 Thomas Frohwein
  *
@@ -14,17 +16,10 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#if !defined(_PATHNAMES_H_)
+#define _PATHNAMES_H_
 
-__dead int usage(void) {
-	fprintf(stderr,
-	        "usage: rigg\n"
-	        "\n");
-	exit(1);
-}
+/* default binary location */
+#define _DEFAULT_RIGG_BIN	"/usr/local/bin/rigg"
 
-int main(int argc, char** argv) {
-	usage();
-	return 0;
-}
+#endif /* _PATHNAMES_H */
