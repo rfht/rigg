@@ -1,0 +1,6 @@
+/rigg
+*.o
+*.so
+*.so.*
+*.out
+*.core
