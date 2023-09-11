@@ -58,7 +58,10 @@ int mono(char *file, int argc, char** argv) {
 	if (unveil("FNA.dll.config", "") == -1)
 		err(1, "unveil");
 
-	//r = mono_jit_exec(domain, assembly, argc, argv);	// XXX
+	if (pledge(NULL, NULL) == -1)	/* XXX: add actual pledges */
+		err(1, "pledge");
+
+	//r = mono_jit_exec(domain, assembly, argc, argv);	/* XXX */
 	r = mono_jit_exec(domain, assembly, 1, &file);
 
 	mono_jit_cleanup(domain);	/* void */
