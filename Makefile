@@ -1,11 +1,13 @@
 CFLAGS ?=	-Wall -Werror -O2 -pipe
 MONO_CFLAGS ?=	-I/usr/local/include/mono-2.0
 MONO_LDFLAGS ?=	-L/usr/local/lib -lmonosgen-2.0 -Wl,-z,wxneeded -Wl,-z,nobtcfi
-CFLAGS +=	${MONO_CFLAGS} ${MONO_LDFLAGS}
+HL_CFLAGS ?=	-I/usr/local/include
+HL_LDFLAGS ?=	-L/usr/local/lib -lhl
+CFLAGS +=	${HL_CFLAGS} ${MONO_CFLAGS} ${HL_LDFLAGS} ${MONO_LDFLAGS}
 CC ?=		clang
 TARGET ?=	rigg
 
-SOURCES =	rigg.c mono.c
+SOURCES =	rigg.c mono.c hl.c
 
 .SUFFIXES: .c .o
 

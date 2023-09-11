@@ -22,7 +22,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "mono.h"
+#include "rigg.h"
 
 #define STR_MAX		1024
 
@@ -59,12 +59,19 @@ int main(int argc, char** argv) {
 	argv += optind;
 
 	if (*eflag != '\0') {
-		if (strncmp(eflag, "mono", STR_MAX) == 0)
+		if (strncmp(eflag, "mono", STR_MAX) == 0) {
 			if (argc > 0) {
 				//return mono(argv[0], argc - 1, argv + 1);
 				return mono(argv[0], 0, NULL);
 			}
 			errx(1, "too few arguments");
+		}
+		else if (strncmp(eflag, "hl", STR_MAX) == 0) {
+			if (argc > 0) {
+				return hl(argv[0], 0, NULL);
+			}
+			errx(1, "too few arguments");
+		}
 	}
 
 	fprintf(stderr, "no engine specified\n");
