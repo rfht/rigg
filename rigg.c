@@ -14,15 +14,19 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/cdefs.h>
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#include "mono.h"
+
 #define STR_MAX		1024
 
-__dead int usage(void) {
+__dead static int usage(void) {
 	fprintf(stderr,
 	        "usage: rigg\n"
 	        "\n");
@@ -48,12 +52,20 @@ int main(int argc, char** argv) {
 			break;
 		case 'h':
 		default:
-			usage();
+			(void)usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
 
-	printf("eflag: %s, gflag: %s\n", eflag, gflag);
+	if (*eflag != '\0') {
+		if (strncmp(eflag, "mono", STR_MAX) == 0)
+			if (argc > 0) {
+				//return mono(argv[0], argc - 1, argv + 1);
+				return mono(argv[0], 0, NULL);
+			}
+			errx(1, "too few arguments");
+	}
+
 	return 0;
 }

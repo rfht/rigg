@@ -4,3 +4,4 @@
 *.so.*
 *.out
 *.core
+*.plist
