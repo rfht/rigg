@@ -15,6 +15,7 @@
  */
 
 #include <err.h>
+#include <unistd.h>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -33,9 +34,26 @@ int mono(char *file, int argc, char** argv) {
 		err(1, "mono_jit_init");
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
+	mono_set_dirs("/usr/local/share/FNA", NULL);
 
-	//r = mono_jit_exec(domain, assembly, argc, argv);
+	if (unveil("/usr", "r") == -1)
+		err(1, "unveil");
+	if (unveil("/etc", "r") == -1)
+		err(1, "unveil");
+	if (unveil("/dev", "rw") == -1)
+		err(1, "unveil");
+	if (unveil("/tmp", "rwc") == -1)
+		err(1, "unveil");
+	if (unveil("/home", "rwc") == -1)
+		err(1, "unveil");
+	if (unveil("FNA.dll", "") == -1)
+		err(1, "unveil");
+	if (unveil("FNA.dll.config", "") == -1)
+		err(1, "unveil");
+
+	//r = mono_jit_exec(domain, assembly, argc, argv);	// XXX
 	r = mono_jit_exec(domain, assembly, 1, &file);
 	mono_jit_cleanup(domain);	/* void function */
+
 	return r;
 }
