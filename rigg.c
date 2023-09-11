@@ -67,5 +67,7 @@ int main(int argc, char** argv) {
 			errx(1, "too few arguments");
 	}
 
-	return 0;
+	fprintf(stderr, "no engine specified\n");
+
+	return 1;
 }

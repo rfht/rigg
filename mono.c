@@ -20,14 +20,22 @@
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-config.h>
 
+#define RIGG_MONO_CONFIG "/home/thfr/cvs/projects/IndieRunner/share/config/dllmap.config"
+
 int mono(char *file, int argc, char** argv) {
-	mono_config_parse(NULL);
+	MonoDomain	*domain;
+	MonoAssembly	*assembly;
+	int r;
 
-	MonoDomain *domain = mono_jit_init(file);
+	mono_config_parse(RIGG_MONO_CONFIG);	/* void function */
 
-	MonoAssembly *assembly = mono_domain_assembly_open(domain, file);
+	if ((domain = mono_jit_init(file)) == NULL)
+		err(1, "mono_jit_init");
+	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
+		err(1, "mono_domain_assembly_open");
 
-	//mono_jit_exec(domain, assembly, argc, argv);
-	mono_jit_exec(domain, assembly, 1, &file);
-	return 0;
+	//r = mono_jit_exec(domain, assembly, argc, argv);
+	r = mono_jit_exec(domain, assembly, 1, &file);
+	mono_jit_cleanup(domain);	/* void function */
+	return r;
 }
