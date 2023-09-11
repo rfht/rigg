@@ -21,6 +21,7 @@
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-config.h>
 
+/* XXX: move this to pathnames.h? */
 #define RIGG_MONO_CONFIG "/home/thfr/cvs/projects/IndieRunner/share/config/dllmap.config"
 
 int mono(char *file, int argc, char** argv) {
@@ -28,14 +29,20 @@ int mono(char *file, int argc, char** argv) {
 	MonoAssembly	*assembly;
 	int r;
 
-	mono_config_parse(RIGG_MONO_CONFIG);	/* void function */
+	mono_config_parse(RIGG_MONO_CONFIG);		/* void */
 
 	if ((domain = mono_jit_init(file)) == NULL)
 		err(1, "mono_jit_init");
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
-	mono_set_dirs("/usr/local/share/FNA", NULL);
 
+	/*
+	 * mono_set_dirs has to happen after mono_domain_assembly_open,
+         * otherwise, core libraries won't be found.
+         */
+	mono_set_dirs("/usr/local/share/FNA", NULL);	/* void */
+
+	/* hide platform-incompatible files from mono_jit_exec with unveil */
 	if (unveil("/usr", "r") == -1)
 		err(1, "unveil");
 	if (unveil("/etc", "r") == -1)
@@ -53,7 +60,8 @@ int mono(char *file, int argc, char** argv) {
 
 	//r = mono_jit_exec(domain, assembly, argc, argv);	// XXX
 	r = mono_jit_exec(domain, assembly, 1, &file);
-	mono_jit_cleanup(domain);	/* void function */
+
+	mono_jit_cleanup(domain);	/* void */
 
 	return r;
 }
