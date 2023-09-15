@@ -67,13 +67,22 @@ int mono(char *file, int argc, char** argv) {
 	mono_set_dirs(FNA_DIR, NULL);	/* void */
 
 	/* general unveil */
-	if (unveil("/usr", "r") == -1)	/* XXX: probably only /usr/lib */
+	if (unveil(FNA_DIR, "r") == -1)
 		err(1, "unveil");
-	if (unveil("/etc", "r") == -1)	/* XXX: only /etc/mono ? */
+	if (unveil("/usr/lib", "r") == -1)
+		err(1, "unveil");
+	if (unveil("/usr/local/lib", "r") == -1)
+		err(1, "unveil");
+	if (unveil("/usr/X11R6", "r") == -1)
+		err(1, "unveil");
+	if (unveil("/usr/share", "r") == -1)
+		err(1, "unveil");
+
+	if (unveil("/etc", "r") == -1)		/* XXX: only /etc/mono ? */
 		err(1, "unveil");
 	if (unveil("/dev", "rw") == -1)
 		err(1, "unveil");
-	if (unveil("/tmp", "rwc") == -1)	/* XXX: really needed? */
+	if (unveil("/tmp", "rwc") == -1)
 		err(1, "unveil");
 	if (unveil(".", "rwcx") == -1)
 		err(1, "unveil");
