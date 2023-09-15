@@ -15,10 +15,8 @@
  */
 
 #include <err.h>
-#include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 
 #include <mono/jit/jit.h>
@@ -29,30 +27,20 @@
 #define RIGG_MONO_CONFIG	"/home/thfr/cvs/projects/IndieRunner/share/config/dllmap.config"
 #define FNA_DIR			"/usr/local/share/FNA"
 
+const char *unveil_hide[] = {
+	"FNA.dll",
+	"FNA.dll.config"
+};
+
 int mono(char *file, int argc, char** argv) {
 	MonoDomain	*domain;
 	MonoAssembly	*assembly;
-	char *file_realpath;
-	char *file_dirname;
-	char *home_dir;
-	char config_dir[PATH_MAX];
-	char localshare_dir[PATH_MAX];
-	char sndio_dir[PATH_MAX];
-	char mono_dir[PATH_MAX];
-	char xauthority[PATH_MAX];
-	int r;
-
-	mono_config_parse(RIGG_MONO_CONFIG);		/* void */
-
-	if ((domain = mono_jit_init(file)) == NULL)
-		err(1, "mono_jit_init");
-	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
-		err(1, "mono_domain_assembly_open");
-
-	if ((file_realpath = realpath(file, NULL)) == NULL)
-		err(1, "realpath");
-	if ((file_dirname = dirname(file_realpath)) == NULL)
-		err(1, "dirname");
+	char	*home_dir;
+	char	config_dir[PATH_MAX];
+	char	localshare_dir[PATH_MAX];
+	char	sndio_dir[PATH_MAX];
+	char	xauthority[PATH_MAX];
+	int	i, r;
 
 	if ((home_dir = getenv("HOME")) == NULL)
 		err(1, "getenv(\"HOME\")");
@@ -62,10 +50,15 @@ int mono(char *file, int argc, char** argv) {
 		err(1, "snprintf");
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 		err(1, "snprintf");
-	if (snprintf(mono_dir, sizeof(mono_dir), "%s/.mono", home_dir) < 0)
-		err(1, "snprintf");
 	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
 		err(1, "snprintf");
+
+	mono_config_parse(RIGG_MONO_CONFIG);		/* void */
+
+	if ((domain = mono_jit_init(file)) == NULL)
+		err(1, "mono_jit_init");
+	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
+		err(1, "mono_domain_assembly_open");
 
 	/*
 	 * mono_set_dirs has to happen after mono_domain_assembly_open,
@@ -73,33 +66,36 @@ int mono(char *file, int argc, char** argv) {
          */
 	mono_set_dirs(FNA_DIR, NULL);	/* void */
 
-	/* hide platform-incompatible files from mono_jit_exec with unveil */
-	if (unveil("/usr", "r") == -1)
+	/* general unveil */
+	if (unveil("/usr", "r") == -1)	/* XXX: probably only /usr/lib */
 		err(1, "unveil");
-	if (unveil("/etc", "r") == -1)
+	if (unveil("/etc", "r") == -1)	/* XXX: only /etc/mono ? */
 		err(1, "unveil");
 	if (unveil("/dev", "rw") == -1)
 		err(1, "unveil");
-	if (unveil("/tmp", "rwc") == -1)
+	if (unveil("/tmp", "rwc") == -1)	/* XXX: really needed? */
 		err(1, "unveil");
-	if (unveil(file_dirname, "rwcx") == -1)
+	if (unveil(".", "rwcx") == -1)
 		err(1, "unveil");
 	if (unveil(config_dir, "rwcx") == -1)
 		err(1, "unveil");
 	if (unveil(localshare_dir, "rwcx") == -1)
 		err(1, "unveil");
-	if (unveil("FNA.dll", "") == -1)
-		err(1, "unveil");
-	if (unveil("FNA.dll.config", "") == -1)
+	if (unveil(sndio_dir, "rwcx") == -1)
 		err(1, "unveil");
 	if (unveil(RIGG_MONO_CONFIG, "r") == -1)
 		err(1, "unveil");
-	if (unveil(sndio_dir, "rwc") == -1)
-		err(1, "unveil");
-	if (unveil(mono_dir, "rwc") == -1)
-		err(1, "unveil");
 	if (unveil(xauthority, "rw") == -1)
 		err(1, "unveil");
+
+	/* hide platform-incompatible files from mono_jit_exec with unveil */
+	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
+		if (access(unveil_hide[i], F_OK) == 0) {
+			if (unveil(unveil_hide[i], "") == -1)
+				err(1, "unveil");
+		}
+	}
+
 	if (unveil(NULL, NULL) == -1)
 		err(1, "unveil");
 
