@@ -61,8 +61,7 @@ int main(int argc, char** argv) {
 	if (*eflag != '\0') {
 		if (strncmp(eflag, "mono", STR_MAX) == 0) {
 			if (argc > 0) {
-				//return mono(argv[0], argc - 1, argv + 1);
-				return mono(argv[0], 0, NULL);
+				return mono(argv[0], argc, argv);
 			}
 			errx(1, "too few arguments");
 		}

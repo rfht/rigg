@@ -17,6 +17,7 @@
 #include <err.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <mono/jit/jit.h>
@@ -29,7 +30,46 @@
 
 const char *unveil_hide[] = {
 	"FNA.dll",
-	"FNA.dll.config"
+	"FNA.dll.config",
+	"I18N.CJK.dll",
+	"I18N.MidEast.dll",
+	"I18N.Other.dll",
+	"I18N.Rare.dll",
+	"I18N.West.dll",
+	"I18N.dll",
+	"Microsoft.CSharp.dll",
+	"Mono.CSharp.dll",
+	"Mono.Posix.dll",
+	"Mono.Security.dll",
+	"System.Configuration.dll",
+	"System.Configuration.Install.dll",
+	"System.Core.dll",
+	"System.Data.dll",
+	"System.Design.dll",
+	"System.Drawing.dll",
+	"System.IO.Compression.FileSystem.dll",
+	"System.IO.Compression.dll",
+	"System.Management.dll",
+	"System.Net.dll",
+	"System.Numerics.dll",
+	"System.Runtime.Serialization.dll",
+	"System.Security.dll",
+	"System.ServiceModel.dll",
+	"System.Transactions.dll",
+	"System.Web.Extensions.dll",
+	"System.Web.Http.dll",
+	"System.Web.Services.dll",
+	"System.Web.dll",
+	"System.Windows.Forms.dll",
+	"System.Xml.Linq.dll",
+	"System.Xml.dll",
+	"System.dll",
+	"WindowsBase.dll",
+	"libMonoPosixHelper.so",
+	"libMonoPosixHelper.so.x86",
+	"libMonoPosixHelper.so.x86_64",
+	"libSteamworksNative.so",
+	"mscorlib.dll"
 };
 
 int mono(char *file, int argc, char** argv) {
@@ -55,18 +95,22 @@ int mono(char *file, int argc, char** argv) {
 
 	mono_config_parse(RIGG_MONO_CONFIG);		/* void */
 
+	/* set environment BEFORE mono_jit_init */
+	if (setenv("MONO_PATH", FNA_DIR, 0) == -1)
+		err(1, "setenv");
+
 	if ((domain = mono_jit_init(file)) == NULL)
 		err(1, "mono_jit_init");
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
 
-	/*
-	 * mono_set_dirs has to happen after mono_domain_assembly_open,
-         * otherwise, core libraries won't be found.
-         */
-	mono_set_dirs(FNA_DIR, NULL);	/* void */
-
 	/* general unveil */
+
+	/*
+         * NOTES for future needs
+         * Vulkan needs: /home (SDL_GetPrefPath), /dev rwcx
+         */
+
 	if (unveil(FNA_DIR, "r") == -1)
 		err(1, "unveil");
 	if (unveil("/usr/lib", "r") == -1)
@@ -80,12 +124,13 @@ int mono(char *file, int argc, char** argv) {
 
 	if (unveil("/etc", "r") == -1)		/* XXX: only /etc/mono ? */
 		err(1, "unveil");
-	if (unveil("/dev", "rw") == -1)
+	if (unveil("/dev", "rw") == -1)		/* XXX: Vulkan would need cx unveil for /dev */
 		err(1, "unveil");
 	if (unveil("/tmp", "rwc") == -1)
 		err(1, "unveil");
 	if (unveil(".", "rwcx") == -1)
 		err(1, "unveil");
+
 	if (unveil(config_dir, "rwcx") == -1)
 		err(1, "unveil");
 	if (unveil(localshare_dir, "rwcx") == -1)
@@ -108,8 +153,8 @@ int mono(char *file, int argc, char** argv) {
 	if (unveil(NULL, NULL) == -1)
 		err(1, "unveil");
 
-	//r = mono_jit_exec(domain, assembly, argc, argv);	/* XXX */
-	r = mono_jit_exec(domain, assembly, 1, &file);
+	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
+	r = mono_jit_exec(domain, assembly, argc, argv);
 
 	mono_jit_cleanup(domain);	/* void */
 
