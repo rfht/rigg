@@ -108,40 +108,26 @@ int mono(char *file, int argc, char** argv) {
 	/* general unveil */
 
 	/*
-         * NOTES for future needs
+         * NOTES for future
          * Vulkan needs: /home (SDL_GetPrefPath), /dev rwcx
          */
 
-	if (unveil(FNA_DIR, "r") == -1)
-		err(1, "unveil");
-	if (unveil("/usr/lib", "r") == -1)
-		err(1, "unveil");
-	if (unveil("/usr/local/lib", "r") == -1)
-		err(1, "unveil");
-	if (unveil("/usr/X11R6", "r") == -1)
-		err(1, "unveil");
-	if (unveil("/usr/share", "r") == -1)
-		err(1, "unveil");
+	if (unveil(FNA_DIR,		"r"	) == -1) err(1, "unveil");
+	if (unveil("/usr/lib",		"r"	) == -1) err(1, "unveil");
+	if (unveil("/usr/local/lib",	"r"	) == -1) err(1, "unveil");
+	if (unveil("/usr/X11R6",	"r"	) == -1) err(1, "unveil");
+	if (unveil("/usr/share",	"r"	) == -1) err(1, "unveil");
 
-	if (unveil("/etc", "r") == -1)		/* XXX: only /etc/mono ? */
-		err(1, "unveil");
-	if (unveil("/dev", "rw") == -1)		/* XXX: Vulkan would need cx unveil for /dev */
-		err(1, "unveil");
-	if (unveil("/tmp", "rwc") == -1)
-		err(1, "unveil");
-	if (unveil(".", "rwcx") == -1)
-		err(1, "unveil");
+	if (unveil("/etc",		"r"	) == -1) err(1, "unveil"); /* XXX: only /etc/mono ? */
+	if (unveil("/dev",		"rw"	) == -1) err(1, "unveil"); /* XXX: Vulkan: cx */
+	if (unveil("/tmp",		"rwc"	) == -1) err(1, "unveil");
+	if (unveil(".",			"rwcx"	) == -1) err(1, "unveil");
 
-	if (unveil(config_dir, "rwcx") == -1)
-		err(1, "unveil");
-	if (unveil(localshare_dir, "rwcx") == -1)
-		err(1, "unveil");
-	if (unveil(sndio_dir, "rwcx") == -1)
-		err(1, "unveil");
-	if (unveil(RIGG_MONO_CONFIG, "r") == -1)
-		err(1, "unveil");
-	if (unveil(xauthority, "rw") == -1)
-		err(1, "unveil");
+	if (unveil(config_dir,		"rwcx"	) == -1) err(1, "unveil");
+	if (unveil(localshare_dir,	"rwcx"	) == -1) err(1, "unveil");
+	if (unveil(sndio_dir,		"rwcx"	) == -1) err(1, "unveil");
+	if (unveil(RIGG_MONO_CONFIG,	"r"	) == -1) err(1, "unveil");
+	if (unveil(xauthority,		"rw"	) == -1) err(1, "unveil");
 
 	/* hide platform-incompatible files from mono_jit_exec with unveil */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
@@ -151,8 +137,7 @@ int mono(char *file, int argc, char** argv) {
 		}
 	}
 
-	if (unveil(NULL, NULL) == -1)
-		err(1, "unveil");
+	if (unveil(NULL, NULL) == -1) err(1, "unveil");
 
 	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
 	r = mono_jit_exec(domain, assembly, argc, argv);
