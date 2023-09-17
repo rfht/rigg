@@ -10,6 +10,7 @@ RIGG(1) - General Commands Manual
 \[**-v**]
 **-e**&nbsp;*engine*
 *file*
+\[*arguments*]
 
 # DESCRIPTION
 
