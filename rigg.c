@@ -28,7 +28,7 @@
 
 __dead static int usage(void) {
 	fprintf(stderr,
-	        "usage: rigg\n"
+	        "usage: rigg [-v] -e engine file [arguments]\n"
 	        "\n");
 	exit(1);
 }
