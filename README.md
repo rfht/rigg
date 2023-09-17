@@ -37,15 +37,35 @@ The options are as follows:
 **-e** *engine*
 
 > Specify the engine to use. Can select from:
-> *mono*
+> *mono*,
+> *hl*.
 
 **-v**
 
 > enable verbose output.
 
+# EXAMPLES
+
+Run Mono game in
+*Game.exe*:
+
+	$ rigg -e mono Game.exe
+
+Run HashLink game in
+*hlboot.dat*
+with
+**-windowed**
+flag:
+
+	$ rigg -e hl hlboot.dat -windowed
+
 # SEE ALSO
 
 unveil(2),
 mono(1)
+
+# AUTHORS
+
+Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
 OpenBSD 7.3 - September 16, 2023
