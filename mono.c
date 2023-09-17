@@ -121,16 +121,16 @@ int mono(char *file, int argc, char** argv) {
 	if (unveil("/etc",		"r"	) == -1) err(1, "unveil"); /* XXX: only /etc/mono ? */
 	if (unveil("/dev",		"rw"	) == -1) err(1, "unveil"); /* XXX: Vulkan: cx */
 	if (unveil("/tmp",		"rwc"	) == -1) err(1, "unveil");
-	if (unveil(".",			"rwcx"	) == -1) err(1, "unveil");
+	if (unveil(".",			"rwc"	) == -1) err(1, "unveil");
 
-	if (unveil(config_dir,		"rwcx"	) == -1) err(1, "unveil");
-	if (unveil(localshare_dir,	"rwcx"	) == -1) err(1, "unveil");
-	if (unveil(sndio_dir,		"rwcx"	) == -1) err(1, "unveil");
+	if (unveil(config_dir,		"rwc"	) == -1) err(1, "unveil");
+	if (unveil(localshare_dir,	"rwc"	) == -1) err(1, "unveil");
+	if (unveil(sndio_dir,		"rwc"	) == -1) err(1, "unveil");
 	if (unveil(RIGG_MONO_CONFIG,	"r"	) == -1) err(1, "unveil");
 	if (unveil(xauthority,		"rw"	) == -1) err(1, "unveil");
 
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		if (unveil(xdg_data_home, "rwcx") == -1)
+		if (unveil(xdg_data_home, "rwc") == -1)
 			err(1, "unveil");
 	}
 
