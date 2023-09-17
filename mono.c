@@ -76,6 +76,7 @@ int mono(char *file, int argc, char** argv) {
 	MonoDomain	*domain;
 	MonoAssembly	*assembly;
 	char	*home_dir;
+	char	*xdg_data_home;
 	char	config_dir[PATH_MAX];
 	char	localshare_dir[PATH_MAX];
 	char	sndio_dir[PATH_MAX];
@@ -86,7 +87,6 @@ int mono(char *file, int argc, char** argv) {
 		err(1, "getenv(\"HOME\")");
 	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
 		err(1, "snprintf");
-	/* XXX: use env XDG_DATA_HOME as localshare_dir if set */
 	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
 		err(1, "snprintf");
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
@@ -128,6 +128,11 @@ int mono(char *file, int argc, char** argv) {
 	if (unveil(sndio_dir,		"rwcx"	) == -1) err(1, "unveil");
 	if (unveil(RIGG_MONO_CONFIG,	"r"	) == -1) err(1, "unveil");
 	if (unveil(xauthority,		"rw"	) == -1) err(1, "unveil");
+
+	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
+		if (unveil(xdg_data_home, "rwcx") == -1)
+			err(1, "unveil");
+	}
 
 	/* hide platform-incompatible files from mono_jit_exec with unveil */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
