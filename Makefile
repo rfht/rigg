@@ -1,8 +1,8 @@
 CFLAGS ?=	-Wall -Werror -O2 -pipe
 MONO_CFLAGS ?=	-I/usr/local/include/mono-2.0
 MONO_LDFLAGS ?=	-L/usr/local/lib -lmonosgen-2.0 -Wl,-z,wxneeded -Wl,-z,nobtcfi
-HL_CFLAGS ?=	-I/usr/local/include
-HL_LDFLAGS ?=	-L/usr/local/lib -lhl
+HL_CFLAGS ?=	-I/usr/local/include -I/usr/local/include/hl
+HL_LDFLAGS ?=	-L/usr/local/lib -lhl -lhl_module
 CFLAGS +=	${HL_CFLAGS} ${MONO_CFLAGS} ${HL_LDFLAGS} ${MONO_LDFLAGS}
 CC ?=		clang
 TARGET ?=	rigg

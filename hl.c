@@ -15,54 +15,114 @@
  */
 
 #include <err.h>
+#include <glob.h>
+#include <stdio.h>
 #include <unistd.h>
 
 #include <hlc.h>
+#include <hlmodule.h>
+
+typedef struct {
+	char *file;
+	hl_code *code;
+	hl_module *m;
+	vdynamic *ret;
+	int file_time;
+} main_context;
+
+static hl_code *load_code(const char *file, char **error_msg, bool print_errors) {
+	hl_code *code;
+	FILE *f = fopen(file, "rb");
+	long size;
+	int pos;
+	char *fdata;
+	if ((f = fopen(file, "rb")) == NULL)
+		err(1, "fopen");
+	fseek(f, 0, SEEK_END);	/* XXX: check return */
+	size = ftell(f);
+	fseek(f, 0, SEEK_SET);	/* XXX: check return */
+	fdata = (char*)malloc(size);
+	pos = 0;
+	while (pos < size) {
+		size_t r = fread(fdata + pos, 1, size-pos, f);
+		if(r == 0) {
+			if(print_errors)
+				printf("Failed to read '%s'\n", file);
+			return NULL;
+		}
+		pos += r;
+	}
+	if (fclose(f) != 0)
+		err(1, "fclose");
+	code = hl_code_read((unsigned char*)fdata, size, error_msg);
+	free(fdata);
+	return code;
+}
 
 int hl(char *file, int argc, char** argv) {
-	vdynamic *ret;
-	bool isExc =		false;
-	hl_type_fun tf =	{ 0 };
-	hl_type clt =		{ 0 };
-	vclosure cl =		{ 0 };
+	static vclosure cl;
+	char *error_msg = NULL;
+	main_context ctx;
+	bool isExc = false;
+	int first_boot_arg = -1;
 
-	hl_global_init();		/* void */
-	hl_register_thread(&ret);	/* void */
-	//hl_setup_exception(hlc_resolve_symbol, hlc_capture_stack);	/* void */
-	//hl_setup_callbacks(hlc_static_call, hlc_get_wrapper);		/* void */
-	hl_sys_init((void**)(argv + 1), argc - 1, file);		/* void */
-	tf.ret = &hlt_void;
-	clt.kind = HFUN;
-	clt.fun = &tf;
-	cl.t = &clt;
-	//cl.fun = hl_entry_point;
-	ret = hl_dyn_call_safe(&cl, NULL, 0, &isExc);
+
+	hl_global_init();			/* void */
+	hl_sys_init((void**)argv, argc, file);	/* void */
+	hl_register_thread(&ctx);		/* void */
+
+	ctx.file = file;
+	ctx.code = load_code(file, &error_msg, true);
+	if (ctx.code == NULL)
+		errx(1, "%s", error_msg);
+	ctx.m = hl_module_alloc(ctx.code);
+	if (ctx.m == NULL)
+		return 2;
+	if(!hl_module_init(ctx.m, false))
+		return 3;
+	hl_code_free(ctx.code);
+
+	cl.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;
+	cl.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
+	cl.hasValue = 0;
+
+	/* general unveil */
+	if (unveil("/usr", "r") == -1) err(1, "unveil");
+	if (unveil("/etc", "r") == -1) err(1, "unveil");
+	if (unveil("/dev", "rw") == -1) err(1, "unveil");
+	if (unveil("/tmp", "rwc") == -1) err(1, "unveil");
+	if (unveil("/home", "rwc") == -1) err(1, "unveil");
+
+	/* hide the incompatible bundled files */
+
+	glob_t g;
+	char *match;
+
+	g.gl_offs = 0;
+	if (glob("*.hdll", 0, NULL, &g) != 0)
+		err(1, "glob");
+	if (glob("*.so", GLOB_APPEND, NULL, &g) != 0)
+		err(1, "glob");
+	if (glob("*.so.*", GLOB_APPEND, NULL, &g) != 0)
+		err(1, "glob");
+
+	while ((match = *g.gl_pathv++) != NULL) {
+		if (unveil(match, "") == -1) err(1, "unveil");
+	}
+
+	if (unveil(NULL, NULL) == -1) err(1, "unveil");
+
+	/* run the main hashlink application */
+	ctx.ret = hl_dyn_call_safe(&cl, NULL, 0, &isExc);
 	if( isExc ) {
 		varray *a = hl_exception_stack();
 		int i;
-		uprintf(USTR("Uncaught exception: %s\n"), hl_to_string(ret));
+		uprintf(USTR("Uncaught exception: %s\n"), hl_to_string(ctx.ret));
 		for (i = 0; i<a->size; i++)
 			uprintf(USTR("Called from %s\n"), hl_aptr(a, uchar*)[i]);
 	}
+	hl_module_free(ctx.m);
+	hl_free(&ctx.code->alloc);
 	hl_global_free();	/* void */
 	return (int)isExc;
-
-#if 0
-	/* hide platform-incompatible files from mono_jit_exec with unveil */
-	if (unveil("/usr", "r") == -1)
-		err(1, "unveil");
-	if (unveil("/etc", "r") == -1)
-		err(1, "unveil");
-	if (unveil("/dev", "rw") == -1)
-		err(1, "unveil");
-	if (unveil("/tmp", "rwc") == -1)
-		err(1, "unveil");
-	if (unveil("/home", "rwc") == -1)
-		err(1, "unveil");
-
-	if (pledge(NULL, NULL) == -1)	/* XXX: add actual pledges */
-		err(1, "pledge");
-
-	return r;
-#endif
 }
