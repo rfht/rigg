@@ -26,7 +26,7 @@ handles availability of files by using
 unveil(2)
 to hide bundled files that conflict with OpenBSD runtimes and libraries.
 This is a common occurrence with commercial games based on open-source
-framworks like FNA, LibGDX, or HashLink.
+frameworks like FNA, LibGDX, or HashLink.
 Besides hiding the conflicting files,
 unveil(2)
 is also used to enforce a restricted filesystem view of only the
@@ -68,4 +68,4 @@ mono(1)
 
 Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
-OpenBSD 7.3 - September 16, 2023
+OpenBSD 7.3 - September 17, 2023
