@@ -86,6 +86,7 @@ int mono(char *file, int argc, char** argv) {
 		err(1, "getenv(\"HOME\")");
 	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
 		err(1, "snprintf");
+	/* XXX: use env XDG_DATA_HOME as localshare_dir if set */
 	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
 		err(1, "snprintf");
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)

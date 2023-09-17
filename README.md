@@ -19,8 +19,7 @@ serves as an OpenBSD-adapted runtime for indie games based on certain engines
 (see
 **-e**)
 .
-There are many exceptions, mainly of games with those engines using proprietary
-middleware.
+There are many exceptions, mainly consisting of games using proprietary middleware.
 
 # SEE ALSO
 

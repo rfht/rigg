@@ -35,17 +35,13 @@ __dead static int usage(void) {
 
 int main(int argc, char** argv) {
 	int vflag, ch;
-	char eflag[STR_MAX] = "\0", gflag[STR_MAX] = "\0";
+	char eflag[STR_MAX] = "\0";
 
 	vflag = 0;
-	while ((ch = getopt(argc, argv, "e:g:hv")) != -1) {
+	while ((ch = getopt(argc, argv, "e:hv")) != -1) {
 		switch (ch) {
 		case 'e':
 			if (strlcpy(eflag, optarg, sizeof(eflag)) >= sizeof(eflag))
-				err(1, "strlcpy");
-			break;
-		case 'g':
-			if (strlcpy(gflag, optarg, sizeof(gflag)) >= sizeof(gflag))
 				err(1, "strlcpy");
 			break;
 		case 'v':
