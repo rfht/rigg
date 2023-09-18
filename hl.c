@@ -16,6 +16,7 @@
 
 #include <err.h>
 #include <glob.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,6 +38,7 @@ static hl_code *load_code(const char *file, char **error_msg, bool print_errors)
 	long size;
 	int pos;
 	char *fdata;
+
 	if ((f = fopen(file, "rb")) == NULL)
 		err(1, "fopen");
 	fseek(f, 0, SEEK_END);	/* XXX: check return */
@@ -66,7 +68,13 @@ int hl(char *file, int argc, char** argv) {
 	main_context ctx;
 	bool isExc = false;
 	int first_boot_arg = -1;
+	char *home_dir;
+	char xauthority[PATH_MAX];
 
+	if ((home_dir = getenv("HOME")) == NULL)
+		err(1, "getenv(\"HOME\")");
+	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
+		err(1, "snprintf");
 
 	hl_global_init();			/* void */
 	hl_sys_init((void**)argv, argc, file);	/* void */
@@ -88,11 +96,17 @@ int hl(char *file, int argc, char** argv) {
 	cl.hasValue = 0;
 
 	/* general unveil */
-	if (unveil("/usr", "r") == -1) err(1, "unveil");
-	if (unveil("/etc", "r") == -1) err(1, "unveil");
-	if (unveil("/dev", "rw") == -1) err(1, "unveil");
-	if (unveil("/tmp", "rwc") == -1) err(1, "unveil");
-	if (unveil("/home", "rwc") == -1) err(1, "unveil");
+	if (unveil("/usr/lib",		"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/local/lib",	"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/X11R6",	"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/share",	"r")	== -1) err(1, "unveil");
+
+	if (unveil("/etc",		"r")	== -1) err(1, "unveil");	/* XXX: needed? */
+	if (unveil("/dev",		"rw")	== -1) err(1, "unveil");
+	if (unveil("/tmp",		"rwc")	== -1) err(1, "unveil");	/* XXX: needed? */
+
+	if (unveil(xauthority,		"rw")	== -1) err(1, "unveil");
+	if (unveil(".",			"rwc")	== -1) err(1, "unveil");
 
 	/* hide the incompatible bundled files */
 

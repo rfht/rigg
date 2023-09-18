@@ -112,29 +112,29 @@ int mono(char *file, int argc, char** argv) {
          * Vulkan needs: /home (SDL_GetPrefPath), /dev rwcx
          */
 
-	if (unveil(FNA_DIR,		"r"	) == -1) err(1, "unveil");
-	if (unveil("/usr/lib",		"r"	) == -1) err(1, "unveil");
-	if (unveil("/usr/local/lib",	"r"	) == -1) err(1, "unveil");
-	if (unveil("/usr/X11R6",	"r"	) == -1) err(1, "unveil");
-	if (unveil("/usr/share",	"r"	) == -1) err(1, "unveil");
+	if (unveil(FNA_DIR,		"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/lib",		"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/local/lib",	"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/X11R6",	"r")	== -1) err(1, "unveil");
+	if (unveil("/usr/share",	"r")	== -1) err(1, "unveil");
 
-	if (unveil("/etc",		"r"	) == -1) err(1, "unveil"); /* XXX: only /etc/mono ? */
-	if (unveil("/dev",		"rw"	) == -1) err(1, "unveil"); /* XXX: Vulkan: cx */
-	if (unveil("/tmp",		"rwc"	) == -1) err(1, "unveil");
-	if (unveil(".",			"rwc"	) == -1) err(1, "unveil");
+	if (unveil("/etc",		"r")	== -1) err(1, "unveil"); /* XXX: only /etc/mono ? */
+	if (unveil("/dev",		"rw")	== -1) err(1, "unveil"); /* XXX: Vulkan: cx */
+	if (unveil("/tmp",		"rwc")	== -1) err(1, "unveil");
+	if (unveil(".",			"rwc")	== -1) err(1, "unveil");
 
-	if (unveil(config_dir,		"rwc"	) == -1) err(1, "unveil");
-	if (unveil(localshare_dir,	"rwc"	) == -1) err(1, "unveil");
-	if (unveil(sndio_dir,		"rwc"	) == -1) err(1, "unveil");
-	if (unveil(RIGG_MONO_CONFIG,	"r"	) == -1) err(1, "unveil");
-	if (unveil(xauthority,		"rw"	) == -1) err(1, "unveil");
+	if (unveil(config_dir,		"rwc")	== -1) err(1, "unveil");
+	if (unveil(localshare_dir,	"rwc")	== -1) err(1, "unveil");
+	if (unveil(sndio_dir,		"rwc")	== -1) err(1, "unveil");
+	if (unveil(RIGG_MONO_CONFIG,	"r")	== -1) err(1, "unveil");
+	if (unveil(xauthority,		"rw")	== -1) err(1, "unveil");
 
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
 		if (unveil(xdg_data_home, "rwc") == -1)
 			err(1, "unveil");
 	}
 
-	/* hide platform-incompatible files from mono_jit_exec with unveil */
+	/* hide incompatible bundled files */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 		if (access(unveil_hide[i], F_OK) == 0) {
 			if (unveil(unveil_hide[i], "") == -1)
