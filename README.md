@@ -28,9 +28,10 @@ to hide bundled files that conflict with OpenBSD runtimes and libraries.
 This is a common occurrence with commercial games based on open-source
 frameworks like FNA, LibGDX, or HashLink.
 Besides hiding the conflicting files,
-unveil(2)
-is also used to enforce a restricted filesystem view of only the
-minimum necessary.
+**rigg**
+also enforces a restricted filesystem view of the minimum necessary for
+the engine via
+unveil(2).
 
 The options are as follows:
 

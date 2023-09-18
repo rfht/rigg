@@ -17,6 +17,7 @@
 #include <err.h>
 #include <glob.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 #include <hlc.h>
@@ -41,7 +42,7 @@ static hl_code *load_code(const char *file, char **error_msg, bool print_errors)
 	fseek(f, 0, SEEK_END);	/* XXX: check return */
 	size = ftell(f);
 	fseek(f, 0, SEEK_SET);	/* XXX: check return */
-	fdata = (char*)malloc(size);
+	fdata = malloc(size);
 	pos = 0;
 	while (pos < size) {
 		size_t r = fread(fdata + pos, 1, size-pos, f);
