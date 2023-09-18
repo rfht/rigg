@@ -101,7 +101,6 @@ int hl(char *file, int argc, char** argv) {
 	if (unveil("/usr/X11R6",	"r")	== -1) err(1, "unveil");
 	if (unveil("/usr/share",	"r")	== -1) err(1, "unveil");
 
-	if (unveil("/etc",		"r")	== -1) err(1, "unveil");	/* XXX: needed? */
 	if (unveil("/dev",		"rw")	== -1) err(1, "unveil");
 	if (unveil("/tmp",		"rwc")	== -1) err(1, "unveil");	/* XXX: needed? */
 
