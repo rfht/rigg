@@ -7,7 +7,7 @@
 .Sh SYNOPSIS
 .Nm rigg
 .Op Fl v
-.Fl e Ar engine
+.Ar engine
 .Ar file
 .Op Ar arguments
 .Sh DESCRIPTION
@@ -15,7 +15,7 @@
 serves as an OpenBSD-adapted runtime for indie games based on certain engines
 .Po
 see
-.Fl e
+.Ar engine
 .Pc .
 There are many exceptions, mainly consisting of games using proprietary middleware.
 .Pp
@@ -31,12 +31,19 @@ also enforces a restricted filesystem view of the minimum necessary for
 the engine via
 .Xr unveil 2 .
 .Pp
-The options are as follows:
+The arguments are as follows:
 .Bl -tag -width Ds
-.It Fl e Ar engine
+.It Ar engine
 Specify the engine to use. Can select from:
 .Ar mono ,
 .Ar hl .
+.It Ar file
+The file to launch with the engine, e.g.
+.Pa Game.exe
+.Pq mono
+or
+.Pa hlboot.dat
+.Pq hl .
 .It Fl v
 enable verbose output.
 .El
@@ -47,7 +54,7 @@ enable verbose output.
 Run Mono game in
 .Pa Game.exe :
 .Bd -literal -offset indent
-$ rigg -e mono Game.exe
+$ rigg mono Game.exe
 .Ed
 .Pp
 Run HashLink game in
@@ -56,7 +63,7 @@ with
 .Fl windowed
 flag:
 .Bd -literal -offset indent
-$ rigg -e hl hlboot.dat -windowed
+$ rigg hl hlboot.dat -windowed
 .Ed
 .Sh SEE ALSO
 .Xr unveil 2 ,

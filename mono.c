@@ -72,9 +72,10 @@ const char *unveil_hide[] = {
 	"mscorlib.dll"
 };
 
-int mono(char *file, int argc, char** argv) {
+int mono(int argc, char** argv) {
 	MonoDomain	*domain;
 	MonoAssembly	*assembly;
+	char	*file = argv[0];
 	char	*home_dir;
 	char	*xdg_data_home;
 	char	config_dir[PATH_MAX];

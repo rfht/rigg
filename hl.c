@@ -62,12 +62,14 @@ static hl_code *load_code(const char *file, char **error_msg, bool print_errors)
 	return code;
 }
 
-int hl(char *file, int argc, char** argv) {
+int hl(int argc, char** argv) {
 	static vclosure cl;
 	char *error_msg = NULL;
 	main_context ctx;
 	bool isExc = false;
 	int first_boot_arg = -1;
+	char *file = *argv++;
+	argc++;
 	char *home_dir;
 	char xauthority[PATH_MAX];
 

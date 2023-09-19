@@ -17,6 +17,7 @@
 #include <sys/cdefs.h>
 
 #include <err.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,27 +25,24 @@
 
 #include "rigg.h"
 
-#define STR_MAX		1024
-
 __dead static int usage(void) {
 	fprintf(stderr,
-	        "usage: rigg [-v] -e engine file [arguments]\n"
-	        "\n");
+	        "usage: rigg [-v] mono|hl file [arguments]\n"
+	        );
 	exit(1);
 }
 
 int main(int argc, char** argv) {
 	int vflag, ch;
-	char eflag[STR_MAX] = "\0";
+
+	if (argc < 3)
+		(void)usage();
 
 	vflag = 0;
-	while ((ch = getopt(argc, argv, "e:hv")) != -1) {
+	while ((ch = getopt(argc, argv, "hv")) != -1) {
 		switch (ch) {
-		case 'e':
-			if (strlcpy(eflag, optarg, sizeof(eflag)) >= sizeof(eflag))
-				err(1, "strlcpy");
-			break;
 		case 'v':
+			vflag = 1;
 			break;
 		case 'h':
 		default:
@@ -54,22 +52,13 @@ int main(int argc, char** argv) {
 	argc -= optind;
 	argv += optind;
 
-	if (*eflag != '\0') {
-		if (strncmp(eflag, "mono", STR_MAX) == 0) {
-			if (argc > 0) {
-				return mono(argv[0], argc, argv);
-			}
-			errx(1, "too few arguments");
-		}
-		else if (strncmp(eflag, "hl", STR_MAX) == 0) {
-			if (argc > 0) {
-				return hl(argv[0], 0, NULL);
-			}
-			errx(1, "too few arguments");
-		}
+	if (strncmp(argv[0], "mono", MAX_INPUT) == 0) {
+		return mono(argc - 1, argv + 1);
+	}
+	else if (strncmp(argv[0], "hl", MAX_INPUT) == 0) {
+		return hl(argc - 1, argv + 1);
 	}
 
-	fprintf(stderr, "no engine specified\n");
-
-	return 1;
+	fprintf(stderr, "not a valid engine argument: %s\n", argv[0]);
+	(void)usage();
 }

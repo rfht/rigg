@@ -8,7 +8,7 @@ RIGG(1) - General Commands Manual
 
 **rigg**
 \[**-v**]
-**-e**&nbsp;*engine*
+*engine*
 *file*
 \[*arguments*]
 
@@ -17,7 +17,7 @@ RIGG(1) - General Commands Manual
 **rigg**
 serves as an OpenBSD-adapted runtime for indie games based on certain engines
 (see
-**-e**)
+*engine*)
 .
 There are many exceptions, mainly consisting of games using proprietary middleware.
 
@@ -33,13 +33,22 @@ also enforces a restricted filesystem view of the minimum necessary for
 the engine via
 unveil(2).
 
-The options are as follows:
+The arguments are as follows:
 
-**-e** *engine*
+*engine*
 
 > Specify the engine to use. Can select from:
 > *mono*,
 > *hl*.
+
+*file*
+
+> The file to launch with the engine, e.g.
+> *Game.exe*
+> (mono)
+> or
+> *hlboot.dat*
+> (hl).
 
 **-v**
 
@@ -50,7 +59,7 @@ The options are as follows:
 Run Mono game in
 *Game.exe*:
 
-	$ rigg -e mono Game.exe
+	$ rigg mono Game.exe
 
 Run HashLink game in
 *hlboot.dat*
@@ -58,7 +67,7 @@ with
 **-windowed**
 flag:
 
-	$ rigg -e hl hlboot.dat -windowed
+	$ rigg hl hlboot.dat -windowed
 
 # SEE ALSO
 
@@ -69,4 +78,4 @@ mono(1)
 
 Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
-OpenBSD 7.3 - September 17, 2023
+OpenBSD 7.3 - September 18, 2023

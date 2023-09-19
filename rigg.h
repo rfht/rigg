@@ -17,7 +17,7 @@
 #ifndef _RIGG_H
 #define _RIGG_H
 
-int hl(char *file, int argc, char** argv);
-int mono(char *file, int argc, char** argv);
+int hl(int argc, char** argv);
+int mono(int argc, char** argv);
 
 #endif /* _RIGG_H */
