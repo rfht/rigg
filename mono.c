@@ -55,6 +55,7 @@ const char *unveil_hide[] = {
 	"Mono.CSharp.dll",
 	"Mono.Posix.dll",
 	"Mono.Security.dll",
+	"MonoGame.Framework.dll.config",
 	"System.Configuration.dll",
 	"System.Configuration.Install.dll",
 	"System.Core.dll",
@@ -112,7 +113,8 @@ int mono(int argc, char** argv) {
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
 
-	printf("unveiling:\n");
+	if (verbose)
+		printf("unveiling:\n");
 	unveil_pair uvp;
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
