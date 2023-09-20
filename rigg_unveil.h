@@ -25,6 +25,13 @@ typedef struct {
 	const char *permissions;
 } unveil_pair;
 
+typedef struct {
+	const char *file;	/* program file for quirks detection */
+	const char *env_var;	/* e.g. "HOME", set to NULL to ignore */
+	const char *path;	/* relative to env_var if env_var is not NULL */
+	const char *permissions;
+} unveil_quirk;
+
 void unveil_err(const char *path, const char *permissions) {
 	if (unveil(path, permissions) == -1)
 		err(1, "unveil");

@@ -19,7 +19,19 @@
 
 #define MONO_PATH_DEFAULT	"/usr/local/share/FNA"
 
+/*
+ * Dllmap is a kitchen-sink for any possible issues with looking for the wrong
+ * library location
+ */
 const char *Dllmap = "<configuration>\
+	<dllmap dll=\"ld.so\" target=\"/usr/libexec/ld.so\" />\
+	<dllmap dll=\"libld.so\" target=\"/usr/libexec/ld.so\" />\
+	<dllmap dll=\"libc\" target=\"libc.so\" />\
+	<dllmap dll=\"libSDL2-2.0.so.0\" target=\"libSDL2.so\" />\
+	<dllmap dll=\"x86/libSDL2-2.0.so.0\" target=\"libSDL2.so\" />\
+	<dllmap dll=\"x64/libSDL2-2.0.so.0\" target=\"libSDL2.so\" />\
+	<dllmap dll=\"libSDL2-2.0.so\" target=\"libSDL2.so\" />\
+	<dllmap dll=\"libSDL2-2.0\" target=\"libSDL2.so\" />\
 	<dllmap dll=\"FAudio\" target=\"libFAudio.so\"/>\
 	<dllmap dll=\"FNA3D\" target=\"libFNA3D.so\"/>\
 	<dllmap dll=\"MojoShader.dll\" target=\"libFNA3D.so\"/>\
@@ -40,6 +52,7 @@ const char *Dllmap = "<configuration>\
 	<dllmap dll=\"i:msvcrt\" target=\"libc.so\" os=\"!windows\"/>\
 	<dllmap dll=\"i:msvcrt.dll\" target=\"libc.so\" os=\"!windows\"/>\
 	<dllmap dll=\"msvcr100.dll\" target=\"libc.so\"/>\
+	<dllmap dll=\"libdl.so.2\" target=\"libc.so\" />\
 \
 	<dllmap dll=\"i:CommunityExpressSW\" target=\"libcestub.so\"/>\
 	<dllmap dll=\"i:CommunityExpressSW.dll\" target=\"libcestub.so\"/>\

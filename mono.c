@@ -18,6 +18,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
@@ -40,6 +41,12 @@ const unveil_pair unveils[] = {
 	{ "/dev",		"rw"	}, /* XXX: Vulkan: cx */
 	{ "/tmp",		"rwc"	},
 	{ ".",			"rwc"	}
+};
+
+const unveil_quirk unveil_quirks[] = {
+	{ "DadQuest.exe",	"HOME", "Library/Application Support/DadQuest",	"rwc"	},
+	{ "NeuroVoider.exe",	"HOME",	".neurovoider",				"rwc"	},
+	{ "NeuroVoider.exe",	"",	"NeuroVoider.exe.config",		""	}
 };
 
 const char *unveil_hide[] = {
@@ -84,7 +91,9 @@ const char *unveil_hide[] = {
 	"libMonoPosixHelper.so.x86",
 	"libMonoPosixHelper.so.x86_64",
 	"libSteamworksNative.so",
-	"mscorlib.dll"
+	"mscorlib.dll",
+	"x86",
+	"x64"
 };
 
 int mono(int argc, char** argv) {
@@ -170,6 +179,30 @@ int mono(int argc, char** argv) {
 	}
 	if (verbose)
 		printf("\n");
+
+	/* quirks based on file */
+	unveil_quirk uvq;
+	char *uvq_ev;
+	char uvq_fullpath[PATH_MAX];
+	for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+		uvq = unveil_quirks[i];
+		if (strncmp(uvq.file, file, MAX_INPUT) != 0)
+			continue;
+		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
+			if (verbose)
+				printf(UNVEIL_VPRINT_FMT, uvq.path, uvq.permissions);
+			unveil_err(uvq.path, uvq.permissions);
+		}
+		else {
+			if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
+				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
+					err(1, "snprintf");
+			}
+			if (verbose)
+				printf(UNVEIL_VPRINT_FMT, uvq_fullpath, uvq.permissions);
+			unveil_err(uvq_fullpath, uvq.permissions);
+		}
+	}
 
 	if (unveil(NULL, NULL) == -1) err(1, "unveil");
 

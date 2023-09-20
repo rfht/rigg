@@ -20,6 +20,8 @@ rigg: ${OBJ}
 
 rigg.o: rigg.h
 
+mono.o: rigg.h rigg_mono.h rigg_unveil.h
+
 clean:
 	rm -f rigg *.o
 
