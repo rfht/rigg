@@ -14,52 +14,20 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/cdefs.h>
+#ifndef _RIGG_UNVEIL_H
+#define _RIGG_UNVEIL_H
 
 #include <err.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
-#include "rigg.h"
+typedef struct {
+	const char *path;
+	const char *permissions;
+} unveil_pair;
 
-int verbose = 0;
-
-__dead static int usage(void) {
-	fprintf(stderr,
-	        "usage: rigg [-v] mono|hl file [arguments]\n"
-	        );
-	exit(1);
+void unveil_err(const char *path, const char *permissions) {
+	if (unveil(path, permissions) == -1)
+		err(1, "unveil");
 }
 
-int main(int argc, char** argv) {
-	int ch;
-
-	if (argc < 3)
-		(void)usage();
-
-	while ((ch = getopt(argc, argv, "hv")) != -1) {
-		switch (ch) {
-		case 'v':
-			verbose = 1;
-			break;
-		case 'h':
-		default:
-			(void)usage();
-		}
-	}
-	argc -= optind;
-	argv += optind;
-
-	if (strncmp(argv[0], "mono", MAX_INPUT) == 0) {
-		return mono(argc - 1, argv + 1);
-	}
-	else if (strncmp(argv[0], "hl", MAX_INPUT) == 0) {
-		return hl(argc - 1, argv + 1);
-	}
-
-	fprintf(stderr, "not a valid engine argument: %s\n", argv[0]);
-	(void)usage();
-}
+#endif /* _RIGG_UNVEIL_H */

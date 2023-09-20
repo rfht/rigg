@@ -18,15 +18,29 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 #include <mono/jit/jit.h>
 #include <mono/metadata/assembly.h>
 #include <mono/metadata/mono-config.h>
 
-/* XXX: move this to pathnames.h? */
-#define RIGG_MONO_CONFIG	"/home/thfr/cvs/projects/IndieRunner/share/config/dllmap.config"
-#define FNA_DIR			"/usr/local/share/FNA"
+#include "rigg.h"
+#include "rigg_mono.h"
+#include "rigg_unveil.h"
+
+#define UNVEIL_VPRINT_FMT	"\t%-32.32s \"%s\"\n"
+
+/* XXX: Vulkan will need: /home (SDL_GetPrefPath), /dev rwcx */
+const unveil_pair unveils[] = {
+	{ MONO_PATH_DEFAULT,	"r"	},
+	{ "/usr/lib",		"r"	},
+	{ "/usr/local/lib",	"r"	},
+	{ "/usr/X11R6",		"r"	},
+	{ "/usr/share",		"r"	},
+	{ "/etc",		"r"	}, /* XXX: only /etc/mono ? */
+	{ "/dev",		"rw"	}, /* XXX: Vulkan: cx */
+	{ "/tmp",		"rwc"	},
+	{ ".",			"rwc"	}
+};
 
 const char *unveil_hide[] = {
 	"FNA.dll",
@@ -84,67 +98,85 @@ int mono(int argc, char** argv) {
 	char	xauthority[PATH_MAX];
 	int	i, r;
 
-	if ((home_dir = getenv("HOME")) == NULL)
-		err(1, "getenv(\"HOME\")");
-	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
-		err(1, "snprintf");
-	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
-		err(1, "snprintf");
-	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
-		err(1, "snprintf");
-	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
-		err(1, "snprintf");
-
-	mono_config_parse(RIGG_MONO_CONFIG);		/* void */
-
-	/* set environment BEFORE mono_jit_init */
-	if (setenv("MONO_PATH", FNA_DIR, 0) == -1)
-		err(1, "setenv");
-
+	if (verbose)
+		printf("parsing Dllmap\n");
+	mono_config_parse_memory(Dllmap);	/* void */
+	if (setenv("MONO_PATH", MONO_PATH_DEFAULT, 0) == -1)
+		err(1, "setenv"); /* setenv BEFORE mono_jit_init */
+	if (verbose)
+		printf("initializing mono jit for %s\n", file);
 	if ((domain = mono_jit_init(file)) == NULL)
 		err(1, "mono_jit_init");
+	if (verbose)
+		printf("opening executable: %s\n", file);
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
 
-	/* general unveil */
+	printf("unveiling:\n");
+	unveil_pair uvp;
+	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
+		uvp = unveils[i];
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
+		unveil_err(uvp.path, uvp.permissions);
+	}
 
-	/*
-         * NOTES for future
-         * Vulkan needs: /home (SDL_GetPrefPath), /dev rwcx
-         */
+	if ((home_dir = getenv("HOME")) == NULL)
+		err(1, "getenv(\"HOME\")");
 
-	if (unveil(FNA_DIR,		"r")	== -1) err(1, "unveil");
-	if (unveil("/usr/lib",		"r")	== -1) err(1, "unveil");
-	if (unveil("/usr/local/lib",	"r")	== -1) err(1, "unveil");
-	if (unveil("/usr/X11R6",	"r")	== -1) err(1, "unveil");
-	if (unveil("/usr/share",	"r")	== -1) err(1, "unveil");
-
-	if (unveil("/etc",		"r")	== -1) err(1, "unveil"); /* XXX: only /etc/mono ? */
-	if (unveil("/dev",		"rw")	== -1) err(1, "unveil"); /* XXX: Vulkan: cx */
-	if (unveil("/tmp",		"rwc")	== -1) err(1, "unveil");
-	if (unveil(".",			"rwc")	== -1) err(1, "unveil");
-
-	if (unveil(config_dir,		"rwc")	== -1) err(1, "unveil");
-	if (unveil(localshare_dir,	"rwc")	== -1) err(1, "unveil");
-	if (unveil(sndio_dir,		"rwc")	== -1) err(1, "unveil");
-	if (unveil(RIGG_MONO_CONFIG,	"r")	== -1) err(1, "unveil");
-	if (unveil(xauthority,		"rw")	== -1) err(1, "unveil");
-
+	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, config_dir, "rwc");
+		unveil_err(config_dir, "rwc");
+	}
+	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, localshare_dir, "rwc");
+		unveil_err(localshare_dir, "rwc");
+	}
+	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, sndio_dir, "rwc");
+		unveil_err(sndio_dir, "rwc");
+	}
+	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, xauthority, "rw");
+		unveil_err(xauthority, "rw");
+	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		if (unveil(xdg_data_home, "rwc") == -1)
-			err(1, "unveil");
+		if (verbose)
+			printf(UNVEIL_VPRINT_FMT, xdg_data_home, "rwc");
+		unveil_err(xdg_data_home, "rwc");
 	}
 
 	/* hide incompatible bundled files */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 		if (access(unveil_hide[i], F_OK) == 0) {
-			if (unveil(unveil_hide[i], "") == -1)
-				err(1, "unveil");
+			if (verbose)
+				printf(UNVEIL_VPRINT_FMT, unveil_hide[i], "");
+			unveil_err(unveil_hide[i], "");
 		}
 	}
+	if (verbose)
+		printf("\n");
 
 	if (unveil(NULL, NULL) == -1) err(1, "unveil");
 
+	if (verbose) {
+		printf("executing mono jit with the following arguments:");
+		for (i = 0; i < argc; i++)
+			printf(" \"%s\"", argv[i]);
+		printf("\n\n");
+	}
 	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
 	r = mono_jit_exec(domain, assembly, argc, argv);
 
