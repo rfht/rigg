@@ -182,12 +182,10 @@ int hl(int argc, pchar *argv[]) {
 	unveil_pair	uvp;
 	int		i;
 
-	if (verbose)
-		printf("unveiling:\n");
+	vprintf("unveiling:\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
+		vprintf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
 		unveil_err(uvp.path, uvp.permissions);
 	}
 	if ((home_dir = getenv("HOME")) == NULL)
@@ -196,8 +194,7 @@ int hl(int argc, pchar *argv[]) {
 		err(1, "snprintf");
 	}
 	else {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, xauthority, "rw");
+		vprintf(UNVEIL_VPRINT_FMT, xauthority, "rw");
 		unveil_err(xauthority, "rw");
 	}
 
@@ -207,8 +204,7 @@ int hl(int argc, pchar *argv[]) {
 			err(1, "glob");
 	}
 	while ((match = *g.gl_pathv++) != NULL) {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, match, "");
+		vprintf(UNVEIL_VPRINT_FMT, match, "");
 		unveil_err(match, "");
 	}
 
