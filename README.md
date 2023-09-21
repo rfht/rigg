@@ -56,12 +56,12 @@ The arguments are as follows:
 
 # EXAMPLES
 
-Run Mono game in
+Run Mono game
 *Game.exe*:
 
 	$ rigg mono Game.exe
 
-Run HashLink game in
+Run HashLink game
 *hlboot.dat*
 with
 **-windowed**
@@ -78,4 +78,4 @@ mono(1)
 
 Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
-OpenBSD 7.3 - September 18, 2023
+OpenBSD 7.3 - September 20, 2023
