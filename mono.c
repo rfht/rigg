@@ -164,7 +164,6 @@ int mono(int argc, char** argv) {
 			unveil_err(unveil_hide[i], "");
 		}
 	}
-	vprintf("\n");
 
 	/* quirks based on file */
 	unveil_quirk uvq;
@@ -187,6 +186,7 @@ int mono(int argc, char** argv) {
 			unveil_err(uvq_fullpath, uvq.permissions);
 		}
 	}
+	vprintf("\n");
 
 	unveil_err(NULL, NULL);
 
@@ -197,6 +197,7 @@ int mono(int argc, char** argv) {
 	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
 	r = mono_jit_exec(domain, assembly, argc, argv);
 
+	vprintf("cleaning up...\n");
 	mono_jit_cleanup(domain);	/* void */
 
 	return r;

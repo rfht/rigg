@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <glob.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -113,7 +114,6 @@ static bool check_reload( main_context *m ) {
 	return changed;
 }
 
-#include <signal.h>
 static void handle_signal( int signum ) {
 	signal(signum, SIG_DFL);
 	printf("SIGNAL %d\n",signum);
@@ -145,15 +145,19 @@ int hl(int argc, pchar *argv[]) {
 	pchar *file = *argv++;
 	argc--;
 
+	vprintf("launching global init\n");
 	hl_global_init();
 	hl_sys_init((void**)argv,argc,file);
+	vprintf("registring main thread\n");
 	hl_register_thread(&ctx);
 	ctx.file = file;
+	vprintf("loading code from %s\n", file);
 	ctx.code = load_code(file, &error_msg, true);
 	if( ctx.code == NULL ) {
 		if( error_msg ) printf("%s\n", error_msg);
 		return 1;
 	}
+	vprintf("initializing module\n");
 	ctx.m = hl_module_alloc(ctx.code);
 	if( ctx.m == NULL )
 		return 2;
@@ -171,6 +175,7 @@ int hl(int argc, pchar *argv[]) {
 	cl.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;
 	cl.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
 	cl.hasValue = 0;
+	vprintf("setting up signal handler\n");
 	setup_handler();
 	hl_profile_setup(profile_count);
 
@@ -207,10 +212,11 @@ int hl(int argc, pchar *argv[]) {
 		vprintf(UNVEIL_VPRINT_FMT, match, "");
 		unveil_err(match, "");
 	}
+	vprintf("\n");
 
 	unveil_err(NULL, NULL);
 
-	/* call the main program */
+	vprintf("entering main program\n\n");
 	ctx.ret = hl_dyn_call_safe(&cl,NULL,0,&isExc);
 	hl_profile_end();
 	if( isExc ) {
@@ -223,6 +229,7 @@ int hl(int argc, pchar *argv[]) {
 		hl_global_free();
 		return 1;
 	}
+	vprintf("main program concluded without exception; cleaning up...\n");
 	hl_module_free(ctx.m);
 	hl_free(&ctx.code->alloc);
 	// do not call hl_unregister_thread() or hl_global_free will display error 
