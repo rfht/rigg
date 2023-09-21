@@ -51,18 +51,19 @@ enable verbose output.
 .\" For sections 1, 6, and 8 only.
 .Sh EXAMPLES
 Run Mono game
-.Pa Game.exe :
-.Bd -literal -offset indent
-$ rigg mono Game.exe
-.Ed
-.Pp
-Run HashLink game
-.Pa hlboot.dat
+.Pa Game.exe
 with
 .Fl windowed
 flag:
 .Bd -literal -offset indent
-$ rigg hl hlboot.dat -windowed
+$ rigg mono Game.exe -windowed
+.Ed
+.Pp
+Run HashLink game
+.Pa hlboot.dat
+with verbose output:
+.Bd -literal -offset indent
+$ rigg -v hl hlboot.dat -windowed
 .Ed
 .Sh SEE ALSO
 .Xr unveil 2 ,

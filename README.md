@@ -57,17 +57,18 @@ The arguments are as follows:
 # EXAMPLES
 
 Run Mono game
-*Game.exe*:
-
-	$ rigg mono Game.exe
-
-Run HashLink game
-*hlboot.dat*
+*Game.exe*
 with
 **-windowed**
 flag:
 
-	$ rigg hl hlboot.dat -windowed
+	$ rigg mono Game.exe -windowed
+
+Run HashLink game
+*hlboot.dat*
+with verbose output:
+
+	$ rigg -v hl hlboot.dat -windowed
 
 # SEE ALSO
 
