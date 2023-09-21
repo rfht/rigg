@@ -14,7 +14,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <err.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,10 +27,8 @@
 #include "rigg_mono.h"
 #include "rigg_unveil.h"
 
-#define UNVEIL_VPRINT_FMT	"\t%-32.32s \"%s\"\n"
-
 /* XXX: Vulkan will need: /home (SDL_GetPrefPath), /dev rwcx */
-const unveil_pair unveils[] = {
+static const unveil_pair unveils[] = {
 	{ MONO_PATH_DEFAULT,	"r"	},
 	{ "/usr/lib",		"r"	},
 	{ "/usr/local/lib",	"r"	},
@@ -99,6 +96,7 @@ const char *unveil_hide[] = {
 int mono(int argc, char** argv) {
 	MonoDomain	*domain;
 	MonoAssembly	*assembly;
+	unveil_pair	uvp;
 	char	*file = argv[0];
 	char	*home_dir;
 	char	*xdg_data_home;
@@ -124,7 +122,6 @@ int mono(int argc, char** argv) {
 
 	if (verbose)
 		printf("unveiling:\n");
-	unveil_pair uvp;
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
 		if (verbose)
@@ -204,7 +201,7 @@ int mono(int argc, char** argv) {
 		}
 	}
 
-	if (unveil(NULL, NULL) == -1) err(1, "unveil");
+	unveil_err(NULL, NULL);
 
 	if (verbose) {
 		printf("executing mono jit with the following arguments:");

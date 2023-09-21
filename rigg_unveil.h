@@ -20,6 +20,8 @@
 #include <err.h>
 #include <unistd.h>
 
+#define UNVEIL_VPRINT_FMT	"\t%-32.32s \"%s\"\n"
+
 typedef struct {
 	const char *path;
 	const char *permissions;
@@ -32,7 +34,7 @@ typedef struct {
 	const char *permissions;
 } unveil_quirk;
 
-void unveil_err(const char *path, const char *permissions) {
+static void unveil_err(const char *path, const char *permissions) {
 	if (unveil(path, permissions) == -1)
 		err(1, "unveil");
 }
