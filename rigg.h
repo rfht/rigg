@@ -17,6 +17,8 @@
 #ifndef _RIGG_H
 #define _RIGG_H
 
+#define vprintf(...)	do { if (verbose) printf(__VA_ARGS__); } while(0)
+
 int hl(int argc, char** argv);
 int mono(int argc, char** argv);
 

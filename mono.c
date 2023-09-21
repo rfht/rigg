@@ -60,6 +60,7 @@ const char *unveil_hide[] = {
 	"Mono.Posix.dll",
 	"Mono.Security.dll",
 	"MonoGame.Framework.dll.config",
+	"System.ComponentModel.DataAnnotations.dll",
 	"System.Configuration.dll",
 	"System.Configuration.Install.dll",
 	"System.Core.dll",
@@ -106,26 +107,21 @@ int mono(int argc, char** argv) {
 	char	xauthority[PATH_MAX];
 	int	i, r;
 
-	if (verbose)
-		printf("parsing Dllmap\n");
+	vprintf("parsing Dllmap\n");
 	mono_config_parse_memory(Dllmap);	/* void */
 	if (setenv("MONO_PATH", MONO_PATH_DEFAULT, 0) == -1)
 		err(1, "setenv"); /* setenv BEFORE mono_jit_init */
-	if (verbose)
-		printf("initializing mono jit for %s\n", file);
+	vprintf("initializing mono jit for %s\n", file);
 	if ((domain = mono_jit_init(file)) == NULL)
 		err(1, "mono_jit_init");
-	if (verbose)
-		printf("opening executable: %s\n", file);
+	vprintf("opening executable: %s\n", file);
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
 
-	if (verbose)
-		printf("unveiling:\n");
+	vprintf("unveiling:\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
+		vprintf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
 		unveil_err(uvp.path, uvp.permissions);
 	}
 
@@ -135,47 +131,40 @@ int mono(int argc, char** argv) {
 	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, config_dir, "rwc");
+		vprintf(UNVEIL_VPRINT_FMT, config_dir, "rwc");
 		unveil_err(config_dir, "rwc");
 	}
 	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, localshare_dir, "rwc");
+		vprintf(UNVEIL_VPRINT_FMT, localshare_dir, "rwc");
 		unveil_err(localshare_dir, "rwc");
 	}
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, sndio_dir, "rwc");
+		vprintf(UNVEIL_VPRINT_FMT, sndio_dir, "rwc");
 		unveil_err(sndio_dir, "rwc");
 	}
 	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, xauthority, "rw");
+		vprintf(UNVEIL_VPRINT_FMT, xauthority, "rw");
 		unveil_err(xauthority, "rw");
 	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		if (verbose)
-			printf(UNVEIL_VPRINT_FMT, xdg_data_home, "rwc");
+		vprintf(UNVEIL_VPRINT_FMT, xdg_data_home, "rwc");
 		unveil_err(xdg_data_home, "rwc");
 	}
 
 	/* hide incompatible bundled files */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 		if (access(unveil_hide[i], F_OK) == 0) {
-			if (verbose)
-				printf(UNVEIL_VPRINT_FMT, unveil_hide[i], "");
+			vprintf(UNVEIL_VPRINT_FMT, unveil_hide[i], "");
 			unveil_err(unveil_hide[i], "");
 		}
 	}
-	if (verbose)
-		printf("\n");
+	vprintf("\n");
 
 	/* quirks based on file */
 	unveil_quirk uvq;
@@ -186,8 +175,7 @@ int mono(int argc, char** argv) {
 		if (strncmp(uvq.file, file, MAX_INPUT) != 0)
 			continue;
 		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
-			if (verbose)
-				printf(UNVEIL_VPRINT_FMT, uvq.path, uvq.permissions);
+			vprintf(UNVEIL_VPRINT_FMT, uvq.path, uvq.permissions);
 			unveil_err(uvq.path, uvq.permissions);
 		}
 		else {
@@ -195,20 +183,17 @@ int mono(int argc, char** argv) {
 				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
 					err(1, "snprintf");
 			}
-			if (verbose)
-				printf(UNVEIL_VPRINT_FMT, uvq_fullpath, uvq.permissions);
+			vprintf(UNVEIL_VPRINT_FMT, uvq_fullpath, uvq.permissions);
 			unveil_err(uvq_fullpath, uvq.permissions);
 		}
 	}
 
 	unveil_err(NULL, NULL);
 
-	if (verbose) {
-		printf("executing mono jit with the following arguments:");
-		for (i = 0; i < argc; i++)
-			printf(" \"%s\"", argv[i]);
-		printf("\n\n");
-	}
+	vprintf("executing mono jit with the following arguments:");
+	for (i = 0; i < argc; i++)
+		vprintf(" \"%s\"", argv[i]);
+	vprintf("\n\n");
 	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
 	r = mono_jit_exec(domain, assembly, argc, argv);
 
