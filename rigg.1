@@ -12,17 +12,21 @@
 .Op Ar arguments
 .Sh DESCRIPTION
 .Nm
-serves as an OpenBSD-adapted runtime for indie games based on certain engines
+serves as an
+.Ox Ns -adapted runtime for indie games based on certain engines
 .Po
 see
 .Ar engine
 .Pc .
-There are many exceptions, mainly consisting of games using proprietary middleware.
+There are many exceptions, mainly consisting of games using proprietary
+middleware.
 .Pp
 .Nm
 handles availability of files by using
 .Xr unveil 2
-to hide bundled files that conflict with OpenBSD runtimes and libraries.
+to hide bundled files that conflict with
+.Ox
+runtimes and libraries.
 This is a common occurrence with commercial games based on open-source
 frameworks like FNA, LibGDX, or HashLink.
 Besides hiding the conflicting files,
@@ -34,7 +38,8 @@ the engine via
 The arguments are as follows:
 .Bl -tag -width Ds
 .It Ar engine
-Specify the engine to use. Can select from:
+Specify the engine to use.
+Can select from:
 .Ar mono ,
 .Ar hl .
 .It Ar file
@@ -66,8 +71,8 @@ with verbose output:
 $ rigg -v hl hlboot.dat -windowed
 .Ed
 .Sh SEE ALSO
-.Xr unveil 2 ,
-.Xr mono 1
+.Xr mono 1 ,
+.Xr unveil 2
 .\" .Sh HISTORY
 .Sh AUTHORS
 .An -nosplit

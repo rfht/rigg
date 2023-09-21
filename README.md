@@ -15,16 +15,20 @@ RIGG(1) - General Commands Manual
 # DESCRIPTION
 
 **rigg**
-serves as an OpenBSD-adapted runtime for indie games based on certain engines
+serves as an
+OpenBSD-adapted runtime for indie games based on certain engines
 (see
 *engine*)
 .
-There are many exceptions, mainly consisting of games using proprietary middleware.
+There are many exceptions, mainly consisting of games using proprietary
+middleware.
 
 **rigg**
 handles availability of files by using
 unveil(2)
-to hide bundled files that conflict with OpenBSD runtimes and libraries.
+to hide bundled files that conflict with
+OpenBSD
+runtimes and libraries.
 This is a common occurrence with commercial games based on open-source
 frameworks like FNA, LibGDX, or HashLink.
 Besides hiding the conflicting files,
@@ -37,7 +41,8 @@ The arguments are as follows:
 
 *engine*
 
-> Specify the engine to use. Can select from:
+> Specify the engine to use.
+> Can select from:
 > *mono*,
 > *hl*.
 
@@ -72,11 +77,11 @@ with verbose output:
 
 # SEE ALSO
 
-unveil(2),
-mono(1)
+mono(1),
+unveil(2)
 
 # AUTHORS
 
 Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
-OpenBSD 7.3 - September 20, 2023
+OpenBSD 7.3 - September 21, 2023
