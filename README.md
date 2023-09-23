@@ -59,6 +59,14 @@ The arguments are as follows:
 
 > enable verbose output.
 
+# EXIT STATUS
+
+The **rigg** utility exits&#160;0 on success, and&#160;&gt;0 if an error occurs.
+The exit status reflects the
+*engine*'s
+return value.
+See engine-specific documentation.
+
 # EXAMPLES
 
 Run Mono game
@@ -84,4 +92,10 @@ unveil(2)
 
 Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 
-OpenBSD 7.3 - September 21, 2023
+# CAVEATS
+
+The selection of directories that are
+unveil(2)'d
+may not cover all potential use cases.
+
+OpenBSD 7.3 - September 23, 2023

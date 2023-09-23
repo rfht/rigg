@@ -8,6 +8,7 @@ MANDIR =	${PREFIX}/share/man/man
 CFLAGS ?=	-Wall -Werror -O2 -pipe
 MONO_CFLAGS ?=	-I/usr/local/include/mono-2.0
 HL_CFLAGS ?=	-I/usr/local/include -I/usr/local/include/hl
+J17_CFLAGS ?=	-I/usr/local/jdk-17/include
 CFLAGS +=	${HL_CFLAGS} ${MONO_CFLAGS}
 
 MONO_LDFLAGS ?=	-L/usr/local/lib -lmonosgen-2.0 -Wl,-z,wxneeded -Wl,-z,nobtcfi

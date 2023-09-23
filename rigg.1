@@ -52,8 +52,12 @@ or
 .It Fl v
 enable verbose output.
 .El
-.\" .Sh EXIT STATUS
-.\" For sections 1, 6, and 8 only.
+.Sh EXIT STATUS
+.Ex -std
+The exit status reflects the
+.Ar engine Ns 's
+return value.
+See engine-specific documentation.
 .Sh EXAMPLES
 Run Mono game
 .Pa Game.exe
@@ -73,11 +77,10 @@ $ rigg -v hl hlboot.dat -windowed
 .Sh SEE ALSO
 .Xr mono 1 ,
 .Xr unveil 2
-.\" .Sh HISTORY
 .Sh AUTHORS
 .An -nosplit
 .An Thomas Frohwein Aq Mt thfr@openbsd.org
-.\" .Sh CAVEATS
-.\" .Sh BUGS
-.\" .Sh SECURITY CONSIDERATIONS
-.\" Not used in OpenBSD.
+.Sh CAVEATS
+The selection of directories that are
+.Xr unveil 2 Ns 'd
+may not cover all potential use cases.
