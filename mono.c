@@ -118,7 +118,7 @@ int mono(int argc, char** argv) {
 	if ((assembly = mono_domain_assembly_open(domain, file)) == NULL)
 		err(1, "mono_domain_assembly_open");
 
-	vprintf("unveiling:\n");
+	vprintf("\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
 		unveil_err(uvp.path, uvp.permissions);

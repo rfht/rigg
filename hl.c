@@ -187,7 +187,7 @@ int hl(int argc, pchar *argv[]) {
 	unveil_pair	uvp;
 	int		i;
 
-	vprintf("unveiling:\n");
+	vprintf("\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
 		unveil_err(uvp.path, uvp.permissions);

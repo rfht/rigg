@@ -22,7 +22,7 @@
 
 #include "rigg.h"
 
-#define UNVEIL_VPRINT_FMT	"\t%-32.32s \"%s\"\n"
+#define UNVEIL_VPRINT_FMT	"unveil: %-32.32s \"%s\"\n"
 
 typedef struct {
 	const char *path;
