@@ -121,7 +121,6 @@ int mono(int argc, char** argv) {
 	vprintf("unveiling:\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
-		vprintf(UNVEIL_VPRINT_FMT, uvp.path, uvp.permissions);
 		unveil_err(uvp.path, uvp.permissions);
 	}
 
@@ -131,36 +130,30 @@ int mono(int argc, char** argv) {
 	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		vprintf(UNVEIL_VPRINT_FMT, config_dir, "rwc");
 		unveil_err(config_dir, "rwc");
 	}
 	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		vprintf(UNVEIL_VPRINT_FMT, localshare_dir, "rwc");
 		unveil_err(localshare_dir, "rwc");
 	}
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		vprintf(UNVEIL_VPRINT_FMT, sndio_dir, "rwc");
 		unveil_err(sndio_dir, "rwc");
 	}
 	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		vprintf(UNVEIL_VPRINT_FMT, xauthority, "rw");
 		unveil_err(xauthority, "rw");
 	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		vprintf(UNVEIL_VPRINT_FMT, xdg_data_home, "rwc");
 		unveil_err(xdg_data_home, "rwc");
 	}
 
 	/* hide incompatible bundled files */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 		if (access(unveil_hide[i], F_OK) == 0) {
-			vprintf(UNVEIL_VPRINT_FMT, unveil_hide[i], "");
 			unveil_err(unveil_hide[i], "");
 		}
 	}
@@ -174,7 +167,6 @@ int mono(int argc, char** argv) {
 		if (strncmp(uvq.file, file, MAX_INPUT) != 0)
 			continue;
 		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
-			vprintf(UNVEIL_VPRINT_FMT, uvq.path, uvq.permissions);
 			unveil_err(uvq.path, uvq.permissions);
 		}
 		else {
@@ -182,13 +174,12 @@ int mono(int argc, char** argv) {
 				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
 					err(1, "snprintf");
 			}
-			vprintf(UNVEIL_VPRINT_FMT, uvq_fullpath, uvq.permissions);
 			unveil_err(uvq_fullpath, uvq.permissions);
 		}
 	}
-	vprintf("\n");
 
 	unveil_err(NULL, NULL);
+	vprintf("\n");
 
 	vprintf("executing mono jit with the following arguments:");
 	for (i = 0; i < argc; i++)
