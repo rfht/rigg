@@ -31,7 +31,7 @@ uvt_pair* unveiltree_alloc(size_t nuvp) {
 	uvt_total = nuvp;
 	if (getcwd(uvt_cwd, sizeof(uvt_cwd)) == NULL)
 		err(1, "getcwd");
-	return (uvt_pair *)calloc(uvt_total, sizeof(uvt_pair));
+	return (uvt_pair *)reallocarray(NULL, uvt_total, sizeof(uvt_pair));
 }
 
 int unveiltree_add(uvt_pair *unveils, const char *path,
@@ -71,7 +71,6 @@ void _uvt_abs(uvt_pair *unveils) {
 	}
 	for (i = 0; i < uvt_count; i++) {
 		uvtp = unveils[i];
-		printf("size of %s: %lu\n", abspaths[i], sizeof(abspaths[i]));
 
 		if (uvtp.path[0] == '/') {
 			if (strlcpy(abspaths[i], uvtp.path,
@@ -85,8 +84,6 @@ void _uvt_abs(uvt_pair *unveils) {
 				     > sizeof(abspaths[i]))
 				warn("WARNING: path truncated (snprintf): %s", abspaths[i]);
 		}
-	}
-	for (i = 0; i < uvt_count; i++) {
 		unveils[i].path = abspaths[i];
 	}
 
