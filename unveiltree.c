@@ -86,20 +86,57 @@ void _uvt_abs(uvt_pair *unveils) {
 		}
 		unveils[i].path = abspaths[i];
 	}
+}
 
-	/* XXX: handle . and .. in the path */
+/* pp: path pointer */
+/* stores pointers in **pp */
+/* returns number of pp */
+size_t _tokenize_path(char **tok, char *path) {
+	int	i = 0;
+	char	**pp = tok;
 
+	/* all paths are absolute, insert root "/" at the beginning for all */
+	*pp++ = "/";
+	i++;
+
+	while((*pp = strsep(&path, "/")) != NULL) {
+		if (**pp != '\0') {
+			if (strncmp(*pp, "..", PATH_MAX) == 0) {
+				/* erase the current and the previous directory token */
+				if(strlcpy(*pp, "", PATH_MAX) > PATH_MAX)
+					errx(1, "strlcpy");	/* shouldn't be reachable*/
+				if(strlcpy(*--pp, "", PATH_MAX) > PATH_MAX)
+					errx(1, "strlcpy");	/* shouldn't be reachable*/
+				pp = pp + 2;
+				i--;
+			}
+			else if (strncmp(*pp, ".", PATH_MAX) != 0) {
+				pp++;
+				i++;
+			}
+			/* ignore if "." */
+		}
+	}
+
+	return i;
 }
 
 int unveiltree_print(uvt_pair *unveils) {
 	uvt_pair	uvtp;
+	char		**tok = reallocarray(NULL, UNVEIL_MAX, PATH_MAX);
+	size_t		ntokens;
+	int		i, j;
 
-	(void)_uvt_abs(unveils);
-	(void)_uvt_sort(unveils);
+	_uvt_abs(unveils);
+	_uvt_sort(unveils);
 
-	for (int i = 0; i < uvt_count; i++) {
+	for (i = 0; i < uvt_count; i++) {
 		uvtp = unveils[i];
-		printf("[UVT] %s: \"%s\"\n", uvtp.path, uvtp.permissions);
+		ntokens = _tokenize_path(tok, uvtp.path);
+		for (j = 0; j < ntokens; j++) {
+			printf("%-7.7s ", tok[j]);
+		}
+		printf(" \"%s\"\n", uvtp.permissions);
 	}
 	return 0;
 }
