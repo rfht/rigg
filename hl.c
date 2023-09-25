@@ -215,6 +215,7 @@ int hl(int argc, pchar *argv[]) {
 
 	vprintf("entering main program\n\n");
 	ctx.ret = hl_dyn_call_safe(&cl,NULL,0,&isExc);
+	vprintf("cleaning up...\n");
 	hl_profile_end();
 	if( isExc ) {
 		varray *a = hl_exception_stack();

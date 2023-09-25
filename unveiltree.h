@@ -14,33 +14,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _RIGG_UNVEIL_H
-#define _RIGG_UNVEIL_H
+#ifndef _UNVEILTREE_H
+#define _UNVEILTREE_H
 
-#include <err.h>
-#include <unistd.h>
+#include <limits.h>
+#include <string.h>
 
-#include "rigg.h"
-#include "unveiltree.h"
-
-#define UNVEIL_VPRINT_FMT	"unveil: %-32.32s \"%s\"\n"
+#define UNVEIL_MAX		128	/* see sys/kern/kern_unveil.c */
+#define UNVEIL_PERM_LENGTH_MAX	4	/* max length of unveil permissions string */
 
 typedef struct {
-	const char *path;
+	char *path;
 	const char *permissions;
-} unveil_pair;
+} uvt_pair;	/* unveiltree pair */
 
-typedef struct {
-	const char *file;	/* program file for quirks detection */
-	const char *env_var;	/* e.g. "HOME", set to NULL to ignore */
-	const char *path;	/* relative to env_var if env_var is not NULL */
-	const char *permissions;
-} unveil_quirk;
+/* allocate for nuvp number of unveiltree_pairs */
+uvt_pair *unveiltree_alloc(size_t nuvp);
 
-static void unveil_err(const char *path, const char *permissions) {
-	vprintf(UNVEIL_VPRINT_FMT, path, permissions);
-	if (unveil(path, permissions) == -1)
-		err(1, "unveil");
-}
+int unveiltree_add(uvt_pair *unveils, const char *path, const char *permissions);
 
-#endif /* _RIGG_UNVEIL_H */
+int unveiltree_print(uvt_pair *unveils);
+
+#endif /* _UNVEILTREE_H */

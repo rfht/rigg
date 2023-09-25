@@ -1,6 +1,8 @@
 CC =		cc
 PROG =		rigg
-SRCS =		rigg.c mono.c hl.c rigg.h rigg_mono.h rigg_unveil.h
+SRCS =		unveiltree.c unveiltree.h rigg.c mono.c hl.c rigg.h \
+		rigg_mono.h rigg_unveil.h
+		
 PREFIX ?=	/usr/local
 BINDIR =	${PREFIX}/bin
 MANDIR =	${PREFIX}/share/man/man
