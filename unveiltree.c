@@ -196,7 +196,7 @@ int _on_last_branch(uvt_pair *unveils, char **tokens, int level) {
 					}
 					else {
 						/* comparison is another file */
-						return 1;
+						return 0;	/* XXX: TESTING */
 					}
 				}
 			}
@@ -255,24 +255,25 @@ int unveiltree_print(uvt_pair *unveils) {
 
 			if (j == 0) {
 				snprintf(testline, sizeof(testline), "%s", tok[j]);
-				if (/*have_seen &&*/ !last_branch) {
-					snprintf(line, sizeof(line), "| ");
+				if (last_branch) {
+					snprintf(line, sizeof(line), "");
 				}
-				else /*if (have_seen && last_branch)*/ {
-					snprintf(line, sizeof(line), "  ");
-				}
-				/*
 				else {
-					snprintf(line, sizeof(line), "%s", tok[j]);
+					snprintf(line, sizeof(line), "|");
 				}
-				*/
 			}
 			else {
 				snprintf(testline, sizeof(testline),
 				         "%s|%s", testline, tok[j]);
 				if (!have_seen) {
-					printf("%s--%s\n", line, tok[j]);
-					strlcat(line, "  ", sizeof(line));
+					if (last_branch) {
+						printf("%s--%s\n", line, tok[j]);
+						strlcat(line, "  ", sizeof(line));
+					}
+					else {
+						printf("%s|-%s\n", line, tok[j]);
+						strlcat(line, "| ", sizeof(line));
+					}
 					seq = 1;
 				}
 				else {
