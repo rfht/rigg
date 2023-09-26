@@ -40,7 +40,7 @@ int unveiltree_add(uvt_pair *unveils, const char *path,
 	return 0;
 }
 
-void _uvt_sort(uvt_pair *unveils) {
+void _sort(uvt_pair *unveils) {
 	/* note: doesn't handle duplicates */
 	int x, y;
 
@@ -58,7 +58,7 @@ void _uvt_sort(uvt_pair *unveils) {
 	}
 }
 
-void _uvt_abs(uvt_pair *unveils) {
+void _abs(uvt_pair *unveils) {
 	uvt_pair	uvtp;
 	int		i;
 
@@ -124,19 +124,39 @@ size_t _tokenize_path(char **tok, char *path) {
 int unveiltree_print(uvt_pair *unveils) {
 	uvt_pair	uvtp;
 	char		**tok = reallocarray(NULL, UNVEIL_MAX, PATH_MAX);
+	/*
+	 * **seen holds the last seen entry for every level of the file system
+	 * dimensions: level of file system, directory name
+	 * use PATH_MAX /2 for now for levels of file system as heuristic
+         */
+	char		(*seen)[PATH_MAX] = calloc(PATH_MAX / 2, sizeof(*seen));
 	size_t		ntokens;
-	int		i, j;
+	int		i, j, k;
 
-	_uvt_abs(unveils);
-	_uvt_sort(unveils);
+	_abs(unveils);
+	_sort(unveils);
 
 	for (i = 0; i < uvt_count; i++) {
 		uvtp = unveils[i];
+		//printf("%s\n", uvtp.path);
 		ntokens = _tokenize_path(tok, uvtp.path);
 		for (j = 0; j < ntokens; j++) {
-			printf("%-7.7s ", tok[j]);
+			if (strcmp(seen[j], tok[j]) != 0) {
+				if (j == 0)
+					printf("%s\n", tok[j]);
+				else {
+					for (k = 0; k < j - 1; k++)
+						if (k == 0)
+							printf("|   ");
+						else
+							printf("    ");
+					printf("`-- %s\n", tok[j]);
+				}
+				if (strlcpy(seen[j], tok[j], sizeof(seen[j]))
+				    > sizeof(seen[j]))
+					err(1, "strlcpy");
+			}
 		}
-		printf(" \"%s\"\n", uvtp.permissions);
 	}
 	return 0;
 }
