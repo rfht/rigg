@@ -230,6 +230,7 @@ int unveiltree_print(uvt_pair *unveils) {
 	_abs(unveils);
 	_sort(unveils);
 
+	printf ("/\n"); /* root of the fs */
 	for (i = 0; i < uvt_count; i++) {
 		char	pathcopy[PATH_MAX];
 		char	line[PATH_MAX];	/* line to print; use COLUMNS? */
@@ -254,15 +255,17 @@ int unveiltree_print(uvt_pair *unveils) {
 
 			if (j == 0) {
 				snprintf(testline, sizeof(testline), "%s", tok[j]);
-				if (have_seen && !last_branch) {
+				if (/*have_seen &&*/ !last_branch) {
 					snprintf(line, sizeof(line), "| ");
 				}
-				else if (have_seen && last_branch) {
+				else /*if (have_seen && last_branch)*/ {
 					snprintf(line, sizeof(line), "  ");
 				}
+				/*
 				else {
 					snprintf(line, sizeof(line), "%s", tok[j]);
 				}
+				*/
 			}
 			else {
 				snprintf(testline, sizeof(testline),
@@ -273,7 +276,10 @@ int unveiltree_print(uvt_pair *unveils) {
 					seq = 1;
 				}
 				else {
-					strlcat(line, "  ", sizeof(line));
+					if (last_branch)
+						strlcat(line, "  ", sizeof(line));
+					else
+						strlcat(line, "| ", sizeof(line));
 				}
 			}
 
