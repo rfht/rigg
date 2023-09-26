@@ -121,27 +121,92 @@ size_t _tokenize_path(char **tok, char *path) {
 	return i;
 }
 
-char *last_child(char *path, uvt_pair *unveils) {
-	int		i;
-	size_t		len;
-	uvt_pair	uvtp;
-	char		*child, *rest;
+/* 1: this is last branch, 0: not the last branch */
+int _on_last_branch(uvt_pair *unveils, char **tokens, int level) {
+	char	*t;
+	char	*checkpath;
+	char	thisp[PATH_MAX] = "";
+	char	branchp[PATH_MAX] = "";
+	int	i;
 
-	len = strnlen(path, PATH_MAX);
+	/* assemble the path we received */
+	if (level < 1) {
+		/* root is special case */
+		strlcpy(thisp, "/", sizeof(thisp));
+	}
+	/* XXX: review iterator, to see if this can use '<' instead of '<=' */
+	for (i = 1; i <= level; i++) {
+		if ((t = tokens[i]) == NULL) {
+			/* encountered the last path element */
+			/* XXX: not reachable? */
+			printf("LAST PATH ELEMENT: %s\n", tokens[i - 1]);
+			return 1;
+		}
+		if (snprintf(thisp, sizeof(thisp),
+	             "%s/%s", thisp, tokens[i])
+		     > sizeof(thisp))
+		err(1, "snprintf");
+	}
 
-	/* go backwards through unveils paths */
-	for (i = uvt_count - 1; i >= 0; i--) {
-		uvtp = unveils[i];
-		printf("%d, len: %lu, path: %s, uvtp.path: %s\n", i, len, path, uvtp.path);
-		if (strncmp(path, uvtp.path, len) == 0) {
-			child = uvtp.path + len;
-			if ((rest = strchr(child, '/')) == NULL)
-				err(1, "strchr");
-			rest[0] = '\0';
-			return child;
+	/* assemble the path of the branch */
+	if (level < 1) {
+		if (tokens[level + 1] == NULL) {
+			/* special case - we're at the end; don't append NULL */
+			if (snprintf(branchp, sizeof(branchp), "/")
+				     > sizeof(branchp))
+				err(1, "snprintf");
+		}
+		else {
+			if (snprintf(branchp, sizeof(branchp), "/%s", tokens[level + 1])
+				     > sizeof(branchp))
+				err(1, "snprintf");
 		}
 	}
-	return "";
+	else {
+		if (tokens[level + 1] == NULL) {
+			/* special case - we're at the end; don't append NULL */
+			if (snprintf(branchp, sizeof(branchp), "%s", thisp)
+				     > sizeof(branchp))
+				err(1, "snprintf");
+		}
+		else {
+			if (snprintf(branchp, sizeof(branchp), "%s/%s", thisp, tokens[level + 1])
+				     > sizeof(branchp))
+				err(1, "snprintf");
+		}
+	}
+
+	/* go backwards through unveils */
+	for (i = uvt_count - 1; i >= 0; i--) {
+		checkpath = unveils[i].path;
+		if (strncmp(thisp, checkpath, strnlen(thisp, sizeof(thisp))) == 0) {
+			if (strncmp(thisp, branchp, sizeof(branchp)) == 0) {
+				//printf("%s is at FULL PATH: %s ", thisp, branchp);
+				/* if at full path, checkpath has to match exactly */
+				if (strncmp(thisp, checkpath, PATH_MAX) == 0) {
+					//printf(" - MATCH!\n");
+					return 1;
+				}
+				else {
+					//printf(" - NO MATCH!\n");
+					return 0;
+				}
+			}
+			else if (strncmp(branchp, checkpath,
+			            strnlen(branchp, sizeof(branchp))) == 0) {
+				//printf("%s is at LAST BRANCH at: %s\n", thisp, branchp);
+				return 1;
+				break;
+			}
+			else {
+				//printf("%s is NOT at last branch at: %s\n", thisp, branchp);
+				return 0;
+				break;
+			}
+		}
+	}
+
+	return 1;
 }
 
 int unveiltree_print(uvt_pair *unveils) {
@@ -161,46 +226,61 @@ int unveiltree_print(uvt_pair *unveils) {
 
 	for (i = 0; i < uvt_count; i++) {
 		char pathcopy[PATH_MAX];
-		//char check_last_child[PATH_MAX] = "";
 
 		uvtp = unveils[i];
+
+		printf("%s\n", uvtp.path);
+
 		if (strlcpy(pathcopy, uvtp.path, sizeof(pathcopy)) > sizeof(pathcopy))
 			err(1, "strlcpy");
 		ntokens = _tokenize_path(tok, pathcopy);
 		for (j = 0; j < ntokens; j++) {
-#if 0
-			if (j == 0) {
-				printf("ROOT: %s\n", last_child("/", unveils));
+			int last_branch = _on_last_branch(unveils, tok, j);
+			printf("%d", last_branch);
+
+			if (strncmp(seen[j], tok[j], PATH_MAX) == 0) {
+				/* if we're on the last j, then this is a duplicate
+                                 * entry - error
+                                 */
+				if (ntokens - j == 1)
+					warn("duplicate file entry: %s", uvtp.path);
+				/*
+				if (last_branch)
+					printf(" %d  ", j);
+				else
+					printf("|%d   ", j);
+				*/
 			}
 			else {
-				if (snprintf(check_last_child, sizeof(check_last_child),
-				             "%s/%s", check_last_child, tok[j])
-					     > sizeof(check_last_child))
-					err(1, "snprintf");
-				printf("tok[j]: %s, check_last_child: %s\n", tok[j], check_last_child);
-			}
-			/*
-			printf("LAST CHILD of %s: %s\n", check_last_child,
-				last_child(check_last_child, unveils));
-			*/
-#endif
-
-			if (strcmp(seen[j], tok[j]) != 0) {
-				if (j == 0)
-					printf("%s\n", tok[j]);
+				//if (j == 0)
+					//printf("%s\n", tok[j]); /* root node */
+				/*
 				else {
 					for (k = 0; k < j - 1; k++)
 						if (k == 0)
 							printf("|   ");
 						else
 							printf("    ");
-					printf("`-- %s\n", tok[j]);
+					if (last_branch)
+						printf("|%d- %s\n", j, tok[j]);
+					else
+						printf("`%d- %s\n", j, tok[j]);
 				}
+				for (k = 0; k < j; k++) {
+						if (k == 0 && !last_branch)
+							printf("|%d  ", k);
+						else
+							printf(" %d  ", k);
+				}
+				*/
 				if (strlcpy(seen[j], tok[j], sizeof(seen[j]))
 				    > sizeof(seen[j]))
 					err(1, "strlcpy");
 			}
 		}
+		printf("\n");
 	}
+
+	exit(0);	/* XXX for testing only */
 	return 0;
 }
