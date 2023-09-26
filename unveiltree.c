@@ -225,17 +225,24 @@ int unveiltree_print(uvt_pair *unveils) {
          */
 	char		(*seen)[PATH_MAX] = calloc(PATH_MAX / 2, sizeof(*seen));
 	size_t		ntokens;
-	int		i, j, k;
+	int		i, j, k, seq = 0;	/* seq: bool for continuring with same line */
 
 	_abs(unveils);
 	_sort(unveils);
 
 	for (i = 0; i < uvt_count; i++) {
-		char pathcopy[PATH_MAX];
+		char	pathcopy[PATH_MAX];
+		char	line[PATH_MAX];	/* line to print; use COLUMNS? */
+		char	testline[PATH_MAX] = "";
 
 		uvtp = unveils[i];
 
-		printf("%s\n", uvtp.path);
+		if (seq)
+			seq = 0;
+		else
+			strlcpy(line, "", sizeof(line));
+
+		//printf("%s\n", uvtp.path);
 
 		if (strlcpy(pathcopy, uvtp.path, sizeof(pathcopy)) > sizeof(pathcopy))
 			err(1, "strlcpy");
@@ -243,15 +250,43 @@ int unveiltree_print(uvt_pair *unveils) {
 		for (j = 0; j < ntokens; j++) {
 			int have_seen = !strncmp(seen[j], tok[j], PATH_MAX);
 			int last_branch = _on_last_branch(unveils, tok, j);
-			printf("%d%d|", have_seen, last_branch);
+			//printf("%d%d|", have_seen, last_branch);
 
-			if (!have_seen) {
+			if (j == 0) {
+				snprintf(testline, sizeof(testline), "%s", tok[j]);
+				if (have_seen && !last_branch) {
+					snprintf(line, sizeof(line), "| ");
+				}
+				else if (have_seen && last_branch) {
+					snprintf(line, sizeof(line), "  ");
+				}
+				else {
+					snprintf(line, sizeof(line), "%s", tok[j]);
+				}
+			}
+			else {
+				snprintf(testline, sizeof(testline),
+				         "%s|%s", testline, tok[j]);
+				if (!have_seen) {
+					printf("%s--%s\n", line, tok[j]);
+					strlcat(line, "  ", sizeof(line));
+					seq = 1;
+				}
+				else {
+					strlcat(line, "  ", sizeof(line));
+				}
+			}
+
+			if (have_seen) {
+			}
+			else {
 				if (strlcpy(seen[j], tok[j], sizeof(seen[j]))
 				    > sizeof(seen[j]))
 					err(1, "strlcpy");
 			}
 		}
-		printf("\n");
+		//printf("\n%s\n%s\n\n", testline, line);
+		//printf("\n");
 	}
 
 	exit(0);	/* XXX for testing only */
