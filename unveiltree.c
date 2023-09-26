@@ -181,25 +181,31 @@ int _on_last_branch(uvt_pair *unveils, char **tokens, int level) {
 		checkpath = unveils[i].path;
 		if (strncmp(thisp, checkpath, strnlen(thisp, sizeof(thisp))) == 0) {
 			if (strncmp(thisp, branchp, sizeof(branchp)) == 0) {
-				//printf("%s is at FULL PATH: %s ", thisp, branchp);
 				/* if at full path, checkpath has to match exactly */
 				if (strncmp(thisp, checkpath, PATH_MAX) == 0) {
-					//printf(" - MATCH!\n");
 					return 1;
 				}
 				else {
-					//printf(" - NO MATCH!\n");
-					return 0;
+					if (checkpath[strnlen(thisp, sizeof(thisp))]
+						== '/') {
+						/*
+						* comparison is a subdir, so this
+						* is not the last branch
+						*/
+						return 0;
+					}
+					else {
+						/* comparison is another file */
+						return 1;
+					}
 				}
 			}
 			else if (strncmp(branchp, checkpath,
 			            strnlen(branchp, sizeof(branchp))) == 0) {
-				//printf("%s is at LAST BRANCH at: %s\n", thisp, branchp);
 				return 1;
 				break;
 			}
 			else {
-				//printf("%s is NOT at last branch at: %s\n", thisp, branchp);
 				return 0;
 				break;
 			}
@@ -235,44 +241,11 @@ int unveiltree_print(uvt_pair *unveils) {
 			err(1, "strlcpy");
 		ntokens = _tokenize_path(tok, pathcopy);
 		for (j = 0; j < ntokens; j++) {
+			int have_seen = !strncmp(seen[j], tok[j], PATH_MAX);
 			int last_branch = _on_last_branch(unveils, tok, j);
-			printf("%d", last_branch);
+			printf("%d%d|", have_seen, last_branch);
 
-			if (strncmp(seen[j], tok[j], PATH_MAX) == 0) {
-				/* if we're on the last j, then this is a duplicate
-                                 * entry - error
-                                 */
-				if (ntokens - j == 1)
-					warn("duplicate file entry: %s", uvtp.path);
-				/*
-				if (last_branch)
-					printf(" %d  ", j);
-				else
-					printf("|%d   ", j);
-				*/
-			}
-			else {
-				//if (j == 0)
-					//printf("%s\n", tok[j]); /* root node */
-				/*
-				else {
-					for (k = 0; k < j - 1; k++)
-						if (k == 0)
-							printf("|   ");
-						else
-							printf("    ");
-					if (last_branch)
-						printf("|%d- %s\n", j, tok[j]);
-					else
-						printf("`%d- %s\n", j, tok[j]);
-				}
-				for (k = 0; k < j; k++) {
-						if (k == 0 && !last_branch)
-							printf("|%d  ", k);
-						else
-							printf(" %d  ", k);
-				}
-				*/
+			if (!have_seen) {
 				if (strlcpy(seen[j], tok[j], sizeof(seen[j]))
 				    > sizeof(seen[j]))
 					err(1, "strlcpy");
