@@ -121,6 +121,29 @@ size_t _tokenize_path(char **tok, char *path) {
 	return i;
 }
 
+char *last_child(char *path, uvt_pair *unveils) {
+	int		i;
+	size_t		len;
+	uvt_pair	uvtp;
+	char		*child, *rest;
+
+	len = strnlen(path, PATH_MAX);
+
+	/* go backwards through unveils paths */
+	for (i = uvt_count - 1; i >= 0; i--) {
+		uvtp = unveils[i];
+		printf("%d, len: %lu, path: %s, uvtp.path: %s\n", i, len, path, uvtp.path);
+		if (strncmp(path, uvtp.path, len) == 0) {
+			child = uvtp.path + len;
+			if ((rest = strchr(child, '/')) == NULL)
+				err(1, "strchr");
+			rest[0] = '\0';
+			return child;
+		}
+	}
+	return "";
+}
+
 int unveiltree_print(uvt_pair *unveils) {
 	uvt_pair	uvtp;
 	char		**tok = reallocarray(NULL, UNVEIL_MAX, PATH_MAX);
@@ -137,10 +160,31 @@ int unveiltree_print(uvt_pair *unveils) {
 	_sort(unveils);
 
 	for (i = 0; i < uvt_count; i++) {
+		char pathcopy[PATH_MAX];
+		//char check_last_child[PATH_MAX] = "";
+
 		uvtp = unveils[i];
-		//printf("%s\n", uvtp.path);
-		ntokens = _tokenize_path(tok, uvtp.path);
+		if (strlcpy(pathcopy, uvtp.path, sizeof(pathcopy)) > sizeof(pathcopy))
+			err(1, "strlcpy");
+		ntokens = _tokenize_path(tok, pathcopy);
 		for (j = 0; j < ntokens; j++) {
+#if 0
+			if (j == 0) {
+				printf("ROOT: %s\n", last_child("/", unveils));
+			}
+			else {
+				if (snprintf(check_last_child, sizeof(check_last_child),
+				             "%s/%s", check_last_child, tok[j])
+					     > sizeof(check_last_child))
+					err(1, "snprintf");
+				printf("tok[j]: %s, check_last_child: %s\n", tok[j], check_last_child);
+			}
+			/*
+			printf("LAST CHILD of %s: %s\n", check_last_child,
+				last_child(check_last_child, unveils));
+			*/
+#endif
+
 			if (strcmp(seen[j], tok[j]) != 0) {
 				if (j == 0)
 					printf("%s\n", tok[j]);
