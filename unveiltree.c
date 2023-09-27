@@ -243,15 +243,12 @@ int unveiltree_print(uvt_pair *unveils) {
 		else
 			strlcpy(line, "", sizeof(line));
 
-		//printf("%s\n", uvtp.path);
-
 		if (strlcpy(pathcopy, uvtp.path, sizeof(pathcopy)) > sizeof(pathcopy))
 			err(1, "strlcpy");
 		ntokens = _tokenize_path(tok, pathcopy);
 		for (j = 0; j < ntokens; j++) {
 			int have_seen = !strncmp(seen[j], tok[j], PATH_MAX);
 			int last_branch = _on_last_branch(unveils, tok, j);
-			//printf("%d%d|", have_seen, last_branch);
 
 			if (j == 0) {
 				snprintf(testline, sizeof(testline), "%s", tok[j]);
@@ -284,18 +281,13 @@ int unveiltree_print(uvt_pair *unveils) {
 				}
 			}
 
-			if (have_seen) {
-			}
-			else {
+			if (!have_seen) {
 				if (strlcpy(seen[j], tok[j], sizeof(seen[j]))
 				    > sizeof(seen[j]))
 					err(1, "strlcpy");
 			}
 		}
-		//printf("\n%s\n%s\n\n", testline, line);
-		//printf("\n");
 	}
 
-	exit(0);	/* XXX for testing only */
 	return 0;
 }
