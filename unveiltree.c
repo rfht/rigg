@@ -264,11 +264,33 @@ int unveiltree_print(uvt_pair *unveils) {
 				         "%s|%s", testline, tok[j]);
 				if (!have_seen) {
 					if (last_branch) {
-						printf("%s--%s\n", line, tok[j]);
+						if (j == ntokens - 1 &&
+						    strncmp(uvtp.permissions,
+						            "", UNVEIL_PERM_LENGTH_MAX)
+						!= 0) {
+							printf("%s--%s", line, tok[j]);
+							printf("\t\"%s\"",
+							       uvtp.permissions);
+						}
+						else {
+							printf("%s--(%s)", line, tok[j]);
+						}
+						printf("\n");
 						strlcat(line, "  ", sizeof(line));
 					}
 					else {
-						printf("%s|-%s\n", line, tok[j]);
+						if (j == ntokens - 1 &&
+						    strncmp(uvtp.permissions,
+						            "", UNVEIL_PERM_LENGTH_MAX)
+						!= 0) {
+							printf("%s|-%s", line, tok[j]);
+							printf("\t\"%s\"",
+							       uvtp.permissions);
+						}
+						else {
+							printf("%s|-(%s)", line, tok[j]);
+						}
+						printf("\n");
 						strlcat(line, "| ", sizeof(line));
 					}
 					seq = 1;
