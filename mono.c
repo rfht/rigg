@@ -26,7 +26,6 @@
 #include "rigg.h"
 #include "rigg_mono.h"
 #include "rigg_unveil.h"
-#include "unveiltree.h"
 
 /* XXX: Vulkan will need: /home (SDL_GetPrefPath), /dev rwcx */
 static const unveil_pair unveils[] = {
@@ -107,7 +106,6 @@ int mono(int argc, char** argv) {
 	char	sndio_dir[PATH_MAX];
 	char	xauthority[PATH_MAX];
 	int	i, r;
-	uvt_pair *unveiltree;
 
 	vprintf("parsing Dllmap\n");
 	mono_config_parse_memory(Dllmap);	/* void */
@@ -121,11 +119,9 @@ int mono(int argc, char** argv) {
 		err(1, "mono_domain_assembly_open");
 
 	/* unveils */
-	unveiltree = unveiltree_alloc(UNVEIL_MAX);
 	vprintf("\n");
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
-		unveiltree_add(unveiltree, uvp.path, uvp.permissions);
 		unveil_err(uvp.path, uvp.permissions);
 	}
 
@@ -135,36 +131,30 @@ int mono(int argc, char** argv) {
 	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		unveiltree_add(unveiltree, config_dir, "rwc");
 		unveil_err(config_dir, "rwc");
 	}
 	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		unveiltree_add(unveiltree, localshare_dir, "rwc");
 		unveil_err(localshare_dir, "rwc");
 	}
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		unveiltree_add(unveiltree, sndio_dir, "rwc");
 		unveil_err(sndio_dir, "rwc");
 	}
 	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
 		err(1, "snprintf");
 	else {
-		unveiltree_add(unveiltree, xauthority, "rw");
 		unveil_err(xauthority, "rw");
 	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		unveiltree_add(unveiltree, xdg_data_home, "rwc");
 		unveil_err(xdg_data_home, "rwc");
 	}
 
 	/* hide incompatible bundled files */
 	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 		if (access(unveil_hide[i], F_OK) == 0) {
-			unveiltree_add(unveiltree, unveil_hide[i], "");
 			unveil_err(unveil_hide[i], "");
 		}
 	}
@@ -178,7 +168,6 @@ int mono(int argc, char** argv) {
 		if (strncmp(uvq.file, file, MAX_INPUT) != 0)
 			continue;
 		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
-			unveiltree_add(unveiltree, uvq.path, uvq.permissions);
 			unveil_err(uvq.path, uvq.permissions);
 		}
 		else {
@@ -186,13 +175,11 @@ int mono(int argc, char** argv) {
 				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
 					err(1, "snprintf");
 			}
-			unveiltree_add(unveiltree, uvq_fullpath, uvq.permissions);
 			unveil_err(uvq_fullpath, uvq.permissions);
 		}
 	}
 
 	unveil_err(NULL, NULL);
-	unveiltree_print(unveiltree);
 	vprintf("\n");
 
 	vprintf("executing mono jit with the following arguments:");

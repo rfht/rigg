@@ -21,7 +21,6 @@
 #include <unistd.h>
 
 #include "rigg.h"
-#include "unveiltree.h"
 
 #define UNVEIL_VPRINT_FMT	"unveil: %-32.32s \"%s\"\n"
 
