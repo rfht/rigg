@@ -47,7 +47,7 @@ static const unveil_pair unveils[] = {
 	{ "/usr/X11R6",		"r"	},
 	{ "/usr/share",		"r"	},
 	{ "/dev",		"rw"	},
-	{ "/tmp",		"rwc"	},	/* XXX: remove? */
+	{ "/tmp",		"rwc"	},
 	{ ".",			"rwc"	}
 };
 
@@ -203,7 +203,8 @@ int hl(int argc, pchar *argv[]) {
 
 	g.gl_offs = 0;
 	for (i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
-		if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND : 0, NULL, &g) != 0)
+		if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND | GLOB_NOCHECK :
+		         GLOB_NOCHECK, NULL, &g) != 0)
 			err(1, "glob");
 	}
 	while ((match = *g.gl_pathv++) != NULL) {
