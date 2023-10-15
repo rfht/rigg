@@ -101,6 +101,7 @@ int mono(int argc, char** argv) {
 	char	*file = argv[0];
 	char	*home_dir;
 	char	*xdg_data_home;
+	char	*xdg_config_home;
 	char	config_dir[PATH_MAX];
 	char	localshare_dir[PATH_MAX];
 	char	sndio_dir[PATH_MAX];
@@ -150,6 +151,9 @@ int mono(int argc, char** argv) {
 	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
 		unveil_err(xdg_data_home, "rwc");
+	}
+	if ((xdg_config_home = getenv("XDG_CONFIG_HOME")) != NULL) {
+		unveil_err(xdg_config_home, "rwc");
 	}
 
 	/* hide incompatible bundled files */
