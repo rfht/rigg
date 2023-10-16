@@ -40,7 +40,7 @@ static const unveil_pair unveils[] = {
 	{ ".",			"rwc"	}
 };
 
-const unveil_quirk unveil_quirks[] = {
+static const unveil_quirk unveil_quirks[] = {
 	{ "DadQuest.exe",	"HOME", "Library/Application Support/DadQuest",	"rwc"	},
 	{ "NeuroVoider.exe",	"HOME",	".neurovoider",				"rwc"	},
 	{ "NeuroVoider.exe",	"",	"NeuroVoider.exe.config",		""	}
@@ -106,6 +106,8 @@ int mono(int argc, char** argv) {
 	char	localshare_dir[PATH_MAX];
 	char	sndio_dir[PATH_MAX];
 	char	xauthority[PATH_MAX];
+	char	xcompose[PATH_MAX];
+	char	xdefaults[PATH_MAX];
 	int	i, r;
 
 	vprintf("parsing Dllmap\n");
@@ -148,6 +150,16 @@ int mono(int argc, char** argv) {
 		err(1, "snprintf");
 	else {
 		unveil_err(xauthority, "rw");
+	}
+	if (snprintf(xcompose, sizeof(xcompose), "%s/.XCompose", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		unveil_err(xcompose, "rwc");
+	}
+	if (snprintf(xdefaults, sizeof(xcompose), "%s/.Xdefaults", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		unveil_err(xdefaults, "rwc");
 	}
 	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
 		unveil_err(xdg_data_home, "rwc");

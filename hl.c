@@ -57,6 +57,11 @@ const char *unveil_globs[] = {
 	"*.so.*"
 };
 
+static const unveil_quirk unveil_quirks[] = {
+	/* { file,    	env_var,	unveilpath,	permissions }, */
+	{ "../res.pak",	"",		"..",		"rwc"	} /* Nuclear Blaze */
+};
+
 typedef struct {
 	pchar *file;
 	hl_code *code;
@@ -181,13 +186,34 @@ int hl(int argc, pchar *argv[]) {
 
 	/* unveil */
 	glob_t		g;
+	unveil_quirk	uvq;
+	unveil_pair	uvp;
+	char		xauthority[PATH_MAX];
+	char		uvq_fullpath[PATH_MAX];
 	char		*home_dir;
 	char		*match;
-	char		xauthority[PATH_MAX];
-	unveil_pair	uvp;
+	char		*uvq_ev;
 	int		i;
 
 	vprintf("\n");
+
+	/* quirks first */
+	for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+		uvq = unveil_quirks[i];
+		if (access(uvq.file, F_OK) == -1)
+			continue;
+		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
+			unveil_err(uvq.path, uvq.permissions);
+		}
+		else {
+			if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
+				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
+				err(1, "snprintf");
+			}
+			unveil_err(uvq_fullpath, uvq.permissions);
+		}
+	}
+
 	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 		uvp = unveils[i];
 		unveil_err(uvp.path, uvp.permissions);
