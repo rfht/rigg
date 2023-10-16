@@ -104,6 +104,7 @@ int mono(int argc, char** argv) {
 	char	*xdg_config_home;
 	char	config_dir[PATH_MAX];
 	char	localshare_dir[PATH_MAX];
+	char	mesa_shader_cache[PATH_MAX];
 	char	sndio_dir[PATH_MAX];
 	char	xauthority[PATH_MAX];
 	char	xcompose[PATH_MAX];
@@ -140,6 +141,12 @@ int mono(int argc, char** argv) {
 		err(1, "snprintf");
 	else {
 		unveil_err(localshare_dir, "rwc");
+	}
+	if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
+		"%s/.cache/mesa_shader_cache", home_dir) < 0)
+		err(1, "snprintf");
+	else {
+		unveil_err(mesa_shader_cache, "rwc");
 	}
 	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 		err(1, "snprintf");

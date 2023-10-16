@@ -188,6 +188,7 @@ int hl(int argc, pchar *argv[]) {
 	glob_t		g;
 	unveil_quirk	uvq;
 	unveil_pair	uvp;
+	char		mesa_shader_cache[PATH_MAX];
 	char		xauthority[PATH_MAX];
 	char		uvq_fullpath[PATH_MAX];
 	char		*home_dir;
@@ -220,6 +221,13 @@ int hl(int argc, pchar *argv[]) {
 	}
 	if ((home_dir = getenv("HOME")) == NULL)
 		err(1, "getenv(\"HOME\")");
+	if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
+		"%s/.cache/mesa_shader_cache", home_dir) < 0) {
+		err(1, "snprintf");
+	}
+	else {
+		unveil_err(mesa_shader_cache, "rwc");
+	}
 	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0) {
 		err(1, "snprintf");
 	}
