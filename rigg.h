@@ -22,6 +22,7 @@
 int hl(int argc, char** argv);
 int mono(int argc, char** argv);
 
+extern int unveilmode;
 extern int verbose;
 
 #endif /* _RIGG_H */

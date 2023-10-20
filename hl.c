@@ -198,55 +198,61 @@ int hl(int argc, pchar *argv[]) {
 
 	vprintf("\n");
 
-	/* quirks first */
-	for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
-		uvq = unveil_quirks[i];
-		if (access(uvq.file, F_OK) == -1)
-			continue;
-		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
-			unveil_err(uvq.path, uvq.permissions);
+	if (unveilmode >= 2) {
+		/* quirks first */
+		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+			uvq = unveil_quirks[i];
+			if (access(uvq.file, F_OK) == -1)
+				continue;
+			if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
+				unveil_err(uvq.path, uvq.permissions);
+			}
+			else {
+				if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
+					"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
+					err(1, "snprintf");
+				}
+				unveil_err(uvq_fullpath, uvq.permissions);
+			}
+		}
+
+		for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
+			uvp = unveils[i];
+			unveil_err(uvp.path, uvp.permissions);
+		}
+		if ((home_dir = getenv("HOME")) == NULL)
+			err(1, "getenv(\"HOME\")");
+		if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
+			"%s/.cache/mesa_shader_cache", home_dir) < 0) {
+			err(1, "snprintf");
 		}
 		else {
-			if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
-				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
-				err(1, "snprintf");
-			}
-			unveil_err(uvq_fullpath, uvq.permissions);
+			unveil_err(mesa_shader_cache, "rwc");
 		}
+		if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0) {
+			err(1, "snprintf");
+		}
+		else {
+			unveil_err(xauthority, "rw");
+		}
+	} else if (unveilmode >= 1) {
+		unveil_err("/", "rwcx");
 	}
 
-	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
-		uvp = unveils[i];
-		unveil_err(uvp.path, uvp.permissions);
-	}
-	if ((home_dir = getenv("HOME")) == NULL)
-		err(1, "getenv(\"HOME\")");
-	if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
-		"%s/.cache/mesa_shader_cache", home_dir) < 0) {
-		err(1, "snprintf");
-	}
-	else {
-		unveil_err(mesa_shader_cache, "rwc");
-	}
-	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0) {
-		err(1, "snprintf");
-	}
-	else {
-		unveil_err(xauthority, "rw");
-	}
+	if (unveilmode >= 1) {
+		g.gl_offs = 0;
+		for (i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
+			if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND | GLOB_NOCHECK :
+			         GLOB_NOCHECK, NULL, &g) != 0)
+				err(1, "glob");
+		}
+		while ((match = *g.gl_pathv++) != NULL) {
+			unveil_err(match, "");
+		}
 
-	g.gl_offs = 0;
-	for (i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
-		if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND | GLOB_NOCHECK :
-		         GLOB_NOCHECK, NULL, &g) != 0)
-			err(1, "glob");
+		unveil_err(NULL, NULL);
+		vprintf("\n");
 	}
-	while ((match = *g.gl_pathv++) != NULL) {
-		unveil_err(match, "");
-	}
-
-	unveil_err(NULL, NULL);
-	vprintf("\n");
 
 	vprintf("entering main program\n\n");
 	ctx.ret = hl_dyn_call_safe(&cl,NULL,0,&isExc);

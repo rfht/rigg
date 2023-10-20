@@ -25,11 +25,12 @@
 
 #include "rigg.h"
 
+int unveilmode = 2;	/* none = 0, permissive = 1, strict = 2 */
 int verbose = 0;
 
 __dead static int usage(void) {
 	fprintf(stderr,
-	        "usage: rigg [-v] mono|hl file [arguments]\n"
+	        "usage: rigg [-v] [-u strict|permissive|none] mono|hl file [arguments]\n"
 	        );
 	exit(1);
 }
@@ -40,8 +41,18 @@ int main(int argc, char** argv) {
 	if (argc < 3)
 		(void)usage();
 
-	while ((ch = getopt(argc, argv, "hv")) != -1) {
+	while ((ch = getopt(argc, argv, "hu:v")) != -1) {
 		switch (ch) {
+		case 'u':
+			if (strncmp(optarg, "strict", 6) == 0)
+				unveilmode = 2;
+			else if (strncmp(optarg, "permissive", 10) == 0)
+				unveilmode = 1;
+			else if (strncmp(optarg, "none", 4) == 0)
+				unveilmode = 0;
+			else
+				(void)usage();
+			break;
 		case 'v':
 			verbose = 1;
 			break;

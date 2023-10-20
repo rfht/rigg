@@ -7,6 +7,7 @@
 .Sh SYNOPSIS
 .Nm rigg
 .Op Fl v
+.Op Fl u Ar strict | permissive | none
 .Ar engine
 .Ar file
 .Op Ar arguments
@@ -49,8 +50,16 @@ The file to launch with the engine, e.g.
 or
 .Pa hlboot.dat
 .Pq hl .
+.It Fl u
+Set unveil mode.
+.Ar strict
+is the default and reduces read/write/create/execute permissions to a limited set of paths and hides game files as needed.
+.Ar permissive
+only hides game files as needed, but otherwise doesn't restrict filesystem access.
+.Ar none
+disables all uses of unveil.
 .It Fl v
-enable verbose output.
+Enable verbose output.
 .El
 .Sh EXIT STATUS
 .Ex -std

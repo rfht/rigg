@@ -35,7 +35,7 @@ static const unveil_pair unveils[] = {
 	{ "/usr/X11R6",		"r"	},
 	{ "/usr/share",		"r"	},
 	{ "/etc",		"r"	}, /* XXX: only /etc/mono ? */
-	{ "/dev",		"rw"	}, /* XXX: Vulkan: cx */
+	{ "/dev",		"rw"	}, /* XXX: Vulkan: cx; also compare unveilro */
 	{ "/tmp",		"rwc"	},
 	{ ".",			"rwc"	}
 };
@@ -124,86 +124,94 @@ int mono(int argc, char** argv) {
 
 	/* unveils */
 	vprintf("\n");
-	for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
-		uvp = unveils[i];
-		unveil_err(uvp.path, uvp.permissions);
-	}
 
-	if ((home_dir = getenv("HOME")) == NULL)
-		err(1, "getenv(\"HOME\")");
-
-	if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(config_dir, "rwc");
-	}
-	if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(localshare_dir, "rwc");
-	}
-	if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
-		"%s/.cache/mesa_shader_cache", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(mesa_shader_cache, "rwc");
-	}
-	if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(sndio_dir, "rwc");
-	}
-	if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(xauthority, "rw");
-	}
-	if (snprintf(xcompose, sizeof(xcompose), "%s/.XCompose", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(xcompose, "rwc");
-	}
-	if (snprintf(xdefaults, sizeof(xcompose), "%s/.Xdefaults", home_dir) < 0)
-		err(1, "snprintf");
-	else {
-		unveil_err(xdefaults, "rwc");
-	}
-	if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
-		unveil_err(xdg_data_home, "rwc");
-	}
-	if ((xdg_config_home = getenv("XDG_CONFIG_HOME")) != NULL) {
-		unveil_err(xdg_config_home, "rwc");
-	}
-
-	/* hide incompatible bundled files */
-	for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
-		if (access(unveil_hide[i], F_OK) == 0) {
-			unveil_err(unveil_hide[i], "");
-		}
-	}
-
-	/* quirks based on file */
-	unveil_quirk uvq;
-	char *uvq_ev;
-	char uvq_fullpath[PATH_MAX];
-	for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
-		uvq = unveil_quirks[i];
-		if (strncmp(uvq.file, file, MAX_INPUT) != 0)
-			continue;
-		if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
-			unveil_err(uvq.path, uvq.permissions);
-		}
-		else {
-			if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
-				"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
-					err(1, "snprintf");
+	/* strict unveil mode */
+	if (unveilmode >= 2) {
+		/* quirks first */
+		unveil_quirk uvq;
+		char *uvq_ev;
+		char uvq_fullpath[PATH_MAX];
+		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+			uvq = unveil_quirks[i];
+			if (strncmp(uvq.file, file, MAX_INPUT) != 0)
+				continue;
+			if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
+				unveil_err(uvq.path, uvq.permissions);
 			}
-			unveil_err(uvq_fullpath, uvq.permissions);
+			else {
+				if (snprintf(uvq_fullpath, sizeof(uvq_fullpath),
+					"%s/%s", getenv(uvq.env_var), uvq.path) < 0) {
+						err(1, "snprintf");
+				}
+				unveil_err(uvq_fullpath, uvq.permissions);
+			}
 		}
+
+		for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
+			uvp = unveils[i];
+			unveil_err(uvp.path, uvp.permissions);
+		}
+
+		if ((home_dir = getenv("HOME")) == NULL)
+			err(1, "getenv(\"HOME\")");
+
+		if (snprintf(config_dir, sizeof(config_dir), "%s/.config", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(config_dir, "rwc");
+		}
+		if (snprintf(localshare_dir, sizeof(localshare_dir), "%s/.local/share", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(localshare_dir, "rwc");
+		}
+		if (snprintf(mesa_shader_cache, sizeof(mesa_shader_cache),
+			"%s/.cache/mesa_shader_cache", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(mesa_shader_cache, "rwc");
+		}
+		if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(sndio_dir, "rwc");
+		}
+		if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(xauthority, "rw");
+		}
+		if (snprintf(xcompose, sizeof(xcompose), "%s/.XCompose", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(xcompose, "rwc");
+		}
+		if (snprintf(xdefaults, sizeof(xcompose), "%s/.Xdefaults", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(xdefaults, "rwc");
+		}
+		if ((xdg_data_home = getenv("XDG_DATA_HOME")) != NULL) {
+			unveil_err(xdg_data_home, "rwc");
+		}
+		if ((xdg_config_home = getenv("XDG_CONFIG_HOME")) != NULL) {
+			unveil_err(xdg_config_home, "rwc");
+		}
+	} else if (unveilmode >= 1) {
+		unveil_err("/", "rwcx"); 
 	}
 
-	unveil_err(NULL, NULL);
-	vprintf("\n");
+	if (unveilmode >= 1) {
+		/* hide incompatible bundled files */
+		for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
+			if (access(unveil_hide[i], F_OK) == 0) {
+				unveil_err(unveil_hide[i], "");
+			}
+		}
+
+		unveil_err(NULL, NULL);
+		vprintf("\n");
+	}
 
 	vprintf("executing mono jit with the following arguments:");
 	for (i = 0; i < argc; i++)

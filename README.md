@@ -8,6 +8,7 @@ RIGG(1) - General Commands Manual
 
 **rigg**
 \[**-v**]
+\[**-u**&nbsp;*strict*&nbsp;|&nbsp;*permissive*&nbsp;|&nbsp;*none*]
 *engine*
 *file*
 \[*arguments*]
@@ -55,9 +56,19 @@ The arguments are as follows:
 > *hlboot.dat*
 > (hl).
 
+**-u**
+
+> Set unveil mode.
+> *strict*
+> is the default and reduces read/write/create/execute permissions to a limited set of paths and hides game files as needed.
+> *permissive*
+> only hides game files as needed, but otherwise doesn't restrict filesystem access.
+> *none*
+> disables all uses of unveil.
+
 **-v**
 
-> enable verbose output.
+> Enable verbose output.
 
 # EXIT STATUS
 
@@ -98,4 +109,4 @@ The selection of directories that are
 unveil(2)'d
 may not cover all potential use cases.
 
-OpenBSD 7.3 - September 23, 2023
+OpenBSD 7.4 - October 19, 2023
