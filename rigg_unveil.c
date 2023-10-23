@@ -14,25 +14,15 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef _RIGG_UNVEIL_H
-#define _RIGG_UNVEIL_H
+#include <err.h>
+#include <stdio.h>
+#include <unistd.h>
 
+#include "rigg_unveil.h"
 #include "rigg.h"
 
-#define UNVEIL_VPRINT_FMT	"unveil: %-32.32s \"%s\"\n"
-
-typedef struct {
-	const char *path;
-	const char *permissions;
-} unveil_pair;
-
-typedef struct {
-	const char *file;	/* program file for quirks detection */
-	const char *env_var;	/* e.g. "HOME", set to NULL to ignore */
-	const char *path;	/* relative to env_var if env_var is not NULL */
-	const char *permissions;
-} unveil_quirk;
-
-void unveil_err(const char *path, const char *permissions);
-
-#endif /* _RIGG_UNVEIL_H */
+void unveil_err(const char *path, const char *permissions) {
+	vprintf(UNVEIL_VPRINT_FMT, path, permissions);
+	if (unveil(path, permissions) == -1)
+		err(1, "unveil");
+}

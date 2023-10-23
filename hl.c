@@ -22,11 +22,13 @@
  */
 
 #include <sys/stat.h>
+#include <err.h>
 #include <glob.h>
 #include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <hl.h>
 #include <hlmodule.h>
