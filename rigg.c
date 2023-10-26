@@ -25,7 +25,9 @@
 
 #include "rigg.h"
 
-int unveilmode = 2;	/* none = 0, permissive = 1, strict = 2 */
+/* U_PERMISSIVE by default while figuring out cases needing /home access */
+unveilmode umode = PERMISSIVE;
+
 int verbose = 0;
 
 __dead static int usage(void) {
@@ -45,11 +47,11 @@ int main(int argc, char** argv) {
 		switch (ch) {
 		case 'u':
 			if (strncmp(optarg, "strict", 6) == 0)
-				unveilmode = 2;
+				umode = STRICT;
 			else if (strncmp(optarg, "permissive", 10) == 0)
-				unveilmode = 1;
+				umode = PERMISSIVE;
 			else if (strncmp(optarg, "none", 4) == 0)
-				unveilmode = 0;
+				umode = NONE;
 			else
 				(void)usage();
 			break;

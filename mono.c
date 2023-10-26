@@ -128,7 +128,7 @@ int mono(int argc, char** argv) {
 	vprintf("\n");
 
 	/* strict unveil mode */
-	if (unveilmode >= 2) {
+	if (umode >= STRICT) {
 		/* quirks first */
 		unveil_quirk uvq;
 		char *uvq_ev;
@@ -199,11 +199,11 @@ int mono(int argc, char** argv) {
 		if ((xdg_config_home = getenv("XDG_CONFIG_HOME")) != NULL) {
 			unveil_err(xdg_config_home, "rwc");
 		}
-	} else if (unveilmode >= 1) {
+	} else if (umode >= PERMISSIVE) {
 		unveil_err("/", "rwcx"); 
 	}
 
-	if (unveilmode >= 1) {
+	if (umode >= PERMISSIVE) {
 		/* hide incompatible bundled files */
 		for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 			if (access(unveil_hide[i], F_OK) == 0) {

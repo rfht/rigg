@@ -200,7 +200,7 @@ int hl(int argc, pchar *argv[]) {
 
 	vprintf("\n");
 
-	if (unveilmode >= 2) {
+	if (umode >= STRICT) {
 		/* quirks first */
 		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
 			uvq = unveil_quirks[i];
@@ -237,11 +237,11 @@ int hl(int argc, pchar *argv[]) {
 		else {
 			unveil_err(xauthority, "rw");
 		}
-	} else if (unveilmode >= 1) {
+	} else if (umode >= PERMISSIVE) {
 		unveil_err("/", "rwcx");
 	}
 
-	if (unveilmode >= 1) {
+	if (umode >= PERMISSIVE) {
 		g.gl_offs = 0;
 		for (i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
 			if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND | GLOB_NOCHECK :

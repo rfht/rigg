@@ -19,10 +19,18 @@
 
 #define vprintf(...)	do { if (verbose) printf(__VA_ARGS__); } while(0)
 
+typedef enum {
+	NONE,
+	PERMISSIVE,
+	STRICT
+} unveilmode;
+
+extern unveilmode umode;
+extern int verbose;
+
+__BEGIN_DECLS
 int hl(int argc, char** argv);
 int mono(int argc, char** argv);
-
-extern int unveilmode;
-extern int verbose;
+__END_DECLS
 
 #endif /* _RIGG_H */
