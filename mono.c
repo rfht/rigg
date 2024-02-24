@@ -131,13 +131,12 @@ int mono(int argc, char** argv) {
 	if (umode >= STRICT) {
 		/* quirks first */
 		unveil_quirk uvq;
-		char *uvq_ev;
 		char uvq_fullpath[PATH_MAX];
 		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
 			uvq = unveil_quirks[i];
 			if (strncmp(uvq.file, file, MAX_INPUT) != 0)
 				continue;
-			if ((uvq_ev = getenv(uvq.env_var)) == NULL) {
+			if (getenv(uvq.env_var) == NULL) {
 				unveil_err(uvq.path, uvq.permissions);
 			}
 			else {
