@@ -128,7 +128,7 @@ static void handle_signal( int signum ) {
 	fflush(stdout);
 	raise(signum);
 }
-static void setup_handler() {
+static void setup_handler(void) {
 	struct sigaction act;
 	act.sa_sigaction = NULL;
 	act.sa_handler = handle_signal;
@@ -148,7 +148,6 @@ int hl(int argc, pchar *argv[]) {
 	int profile_count = -1;
 	main_context ctx;
 	bool isExc = false;
-	int first_boot_arg = -1;
 	pchar *file = *argv++;
 	argc--;
 
@@ -196,13 +195,12 @@ int hl(int argc, pchar *argv[]) {
 	char		*home_dir;
 	char		*match;
 	char		*uvq_ev;
-	int		i;
 
 	vprintf("\n");
 
 	if (umode >= STRICT) {
 		/* quirks first */
-		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
 			uvq = unveil_quirks[i];
 			if (access(uvq.file, F_OK) == -1)
 				continue;
@@ -218,7 +216,7 @@ int hl(int argc, pchar *argv[]) {
 			}
 		}
 
-		for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 			uvp = unveils[i];
 			unveil_err(uvp.path, uvp.permissions);
 		}
@@ -243,7 +241,7 @@ int hl(int argc, pchar *argv[]) {
 
 	if (umode >= PERMISSIVE) {
 		g.gl_offs = 0;
-		for (i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveil_globs) / sizeof(unveil_globs[0]); i++) {
 			if (glob(unveil_globs[i], i > 0 ? GLOB_APPEND | GLOB_NOCHECK :
 			         GLOB_NOCHECK, NULL, &g) != 0)
 				err(1, "glob");
@@ -262,9 +260,8 @@ int hl(int argc, pchar *argv[]) {
 	hl_profile_end();
 	if( isExc ) {
 		varray *a = hl_exception_stack();
-		int i;
 		uprintf(USTR("Uncaught exception: %s\n"), hl_to_string(ctx.ret));
-		for(i=0;i<a->size;i++)
+		for(int i=0;i<a->size;i++)
 			uprintf(USTR("Called from %s\n"), hl_aptr(a,uchar*)[i]);
 		hl_debug_break();
 		hl_global_free();

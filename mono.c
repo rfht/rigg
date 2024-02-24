@@ -111,7 +111,7 @@ int mono(int argc, char** argv) {
 	char	xauthority[PATH_MAX];
 	char	xcompose[PATH_MAX];
 	char	xdefaults[PATH_MAX];
-	int	i, r;
+	int	r;
 
 	vprintf("parsing Dllmap\n");
 	mono_config_parse_memory(Dllmap);	/* void */
@@ -132,7 +132,7 @@ int mono(int argc, char** argv) {
 		/* quirks first */
 		unveil_quirk uvq;
 		char uvq_fullpath[PATH_MAX];
-		for (i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveil_quirks) / sizeof(unveil_quirks[0]); i++) {
 			uvq = unveil_quirks[i];
 			if (strncmp(uvq.file, file, MAX_INPUT) != 0)
 				continue;
@@ -148,7 +148,7 @@ int mono(int argc, char** argv) {
 			}
 		}
 
-		for (i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveils) / sizeof(unveils[0]); i++) {
 			uvp = unveils[i];
 			unveil_err(uvp.path, uvp.permissions);
 		}
@@ -204,7 +204,7 @@ int mono(int argc, char** argv) {
 
 	if (umode >= PERMISSIVE) {
 		/* hide incompatible bundled files */
-		for (i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
+		for (size_t i = 0; i < sizeof(unveil_hide) / sizeof(unveil_hide[0]); i++) {
 			if (access(unveil_hide[i], F_OK) == 0) {
 				unveil_err(unveil_hide[i], "");
 			}
@@ -215,7 +215,7 @@ int mono(int argc, char** argv) {
 	}
 
 	vprintf("executing mono jit with the following arguments:");
-	for (i = 0; i < argc; i++)
+	for (int i = 0; i < argc; i++)
 		vprintf(" \"%s\"", argv[i]);
 	vprintf("\n\n");
 	/* mono_jit_exec needs argc >= 1 and argv[0] == main_assembly.exe */
