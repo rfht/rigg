@@ -22,6 +22,9 @@ readme:
 uninstall:
 	rm -f ${DESTDIR}${BINDIR}/${PROG}
 	rm -f ${_MAN_INST}
+.for subdir in ${SUBDIR}
+	${MAKE} -C ${subdir} uninstall
+.endfor
 
 .include <bsd.prog.mk>
 .include <bsd.subdir.mk>
