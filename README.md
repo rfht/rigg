@@ -73,9 +73,9 @@ The arguments are as follows:
 # EXIT STATUS
 
 The **rigg** utility exits&#160;0 on success, and&#160;&gt;0 if an error occurs.
-The exit status reflects the
+After successful launch of the engine, the
 *engine*'s
-return value.
+exit status is returned.
 See engine-specific documentation.
 
 # EXAMPLES
@@ -109,4 +109,4 @@ The selection of directories that are
 unveil(2)'d
 may not cover all potential use cases.
 
-OpenBSD 7.4 - October 19, 2023
+OpenBSD 7.5 - February 23, 2024
