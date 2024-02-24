@@ -14,7 +14,7 @@ COPTS +=	${HL_CFLAGS} ${MONO_CFLAGS}
 LDADD +=	-lmonosgen-2.0 -lhl -lhl_module
 LDFLAGS +=	-L/usr/local/lib -Wl,-z,wxneeded -Wl,-z,nobtcfi
 
-SUBDIR +=	util
+SUBDIR +=	librigg_mkdir util
 
 readme:
 	mandoc -T markdown rigg.1 > README.md
