@@ -26,6 +26,6 @@ int mkdir(const char *path, mode_t mode) {
 	orig_mkdir = dlsym(RTLD_NEXT, "mkdir");
 	if (orig_mkdir == NULL)
 		_exit(1);
-	printf("mkdir_detect: %s\n", path);
+	printf("mkdir_diag: %s\n", path);
 	return orig_mkdir(path, mode);
 }
