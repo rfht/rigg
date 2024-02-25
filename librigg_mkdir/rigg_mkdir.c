@@ -49,15 +49,17 @@ int mkdir(const char *path, mode_t mode) {
 
 		/* remove trailing '/' */
 		if (mypath[len - 1] == '/') {
-			mypath[len -1] = '\0';
+			mypath[len - 1] = '\0';
 		}
 
 		/* return with EEXIST for certain paths known to be hidden by unveil(2) */
 		if ((strncmp(mypath, "/home",	sizeof("/home")) == 0) ||
 		    (strncmp(mypath, homedir,	len) == 0) ||
 		    (strncmp(mypath, localdir,	len) == 0)) {
-			    //errno = EEXIST;
-			    //return -1;
+			    /*
+			     * setting errno = EEXIST and returning -1 isn't enough
+			     * for Necrovale
+			     */
 			    return 0;
 		}
 	}
