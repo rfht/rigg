@@ -25,7 +25,7 @@
 
 #include "rigg.h"
 
-/* U_PERMISSIVE by default while figuring out cases needing /home access */
+/* XXX: PERMISSIVE by default due to cases needing /home access. */
 unveilmode umode = PERMISSIVE;
 
 int verbose = 0;
@@ -46,12 +46,12 @@ int main(int argc, char** argv) {
 	while ((ch = getopt(argc, argv, "hu:v")) != -1) {
 		switch (ch) {
 		case 'u':
-			if (strncmp(optarg, "strict", 6) == 0)
-				umode = STRICT;
+			if (strncmp(optarg, "none", 4) == 0)
+				umode = NONE;
 			else if (strncmp(optarg, "permissive", 10) == 0)
 				umode = PERMISSIVE;
-			else if (strncmp(optarg, "none", 4) == 0)
-				umode = NONE;
+			else if (strncmp(optarg, "strict", 6) == 0)
+				umode = STRICT;
 			else
 				(void)usage();
 			break;
