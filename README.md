@@ -92,7 +92,7 @@ Run HashLink game
 *hlboot.dat*
 with verbose output:
 
-	$ rigg -v hl hlboot.dat -windowed
+	$ rigg -v hl hlboot.dat
 
 # SEE ALSO
 
@@ -109,4 +109,4 @@ The selection of directories that are
 unveil(2)'d
 may not cover all potential use cases.
 
-OpenBSD 7.5 - February 23, 2024
+OpenBSD 7.5 - March 3, 2024
