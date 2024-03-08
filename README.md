@@ -11,7 +11,7 @@ RIGG(1) - General Commands Manual
 \[**-u**&nbsp;*strict*&nbsp;|&nbsp;*permissive*&nbsp;|&nbsp;*none*]
 *engine*
 *file*
-\[*arguments*]
+\[*engine&nbsp;arguments*]
 
 # DESCRIPTION
 
