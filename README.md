@@ -16,27 +16,28 @@ RIGG(1) - General Commands Manual
 # DESCRIPTION
 
 **rigg**
-serves as an
-OpenBSD-adapted runtime for indie games based on certain engines
+serves as a thin,
+OpenBSD-adapted runtime wrapper for indie games based on certain engines
 (see
 *engine*)
 .
-There are many exceptions, mainly consisting of games using proprietary
-middleware.
-
 **rigg**
-handles availability of files by using
+handles visibility of files by using
 unveil(2)
-to hide bundled files that conflict with
-OpenBSD
-runtimes and libraries.
-This is a common occurrence with commercial games based on open-source
+to hide those that conflict with execution on
+OpenBSD.
+This solves a common problem with commercial games based on open-source
 frameworks like FNA, LibGDX, or HashLink.
-Besides hiding the conflicting files,
+In addition,
 **rigg**
-also enforces a restricted filesystem view of the minimum necessary for
-the engine via
+also enforces a minimum-necessary filesystem view by default via
 unveil(2).
+Some basic engine configuration for
+OpenBSD
+like dllmap for
+mono(1)
+is included. More complex configuration like filesystem changes or
+game-specific environment variables are out of scope.
 
 The arguments are as follows:
 
@@ -60,11 +61,16 @@ The arguments are as follows:
 
 > Set unveil mode.
 > *strict*
-> is the default and reduces read/write/create/execute permissions to a limited set of paths and hides game files as needed.
+> is the default and reduces read/write/create/execute permissions to a limited
+> set of paths and hides game files that interfere with execution on
+> OpenBSD.
 > *permissive*
-> only hides game files as needed, but otherwise doesn't restrict filesystem access.
+> only hides game files when needed for engine execution, but otherwise doesn't
+> restrict filesystem access.
 > *none*
-> disables all uses of unveil.
+> disables all uses of unveil and is generally equivalent to running the
+> *engine*'s
+> own binary.
 
 **-v**
 
@@ -106,7 +112,13 @@ Thomas Frohwein &lt;[thfr@openbsd.org](mailto:thfr@openbsd.org)&gt;
 # CAVEATS
 
 The selection of directories that are
-unveil(2)'d
+unveil(2)ed
 may not cover all potential use cases.
+Some games fail to launch or have bugs in
+*strict*
+mode if they try to
+stat(2)
+*/home*
+or other hidden directories.
 
-OpenBSD 7.5 - March 3, 2024
+OpenBSD 7.5 - March 8, 2024
