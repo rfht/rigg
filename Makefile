@@ -1,5 +1,6 @@
 PROG =		rigg
 SRCS =		rigg.c rigg_mkdir.c rigg_unveil.c mono.c hl.c
+#SRCS =		rigg.c rigg_unveil.c mono.c hl.c
 		
 PREFIX ?=	/usr/local
 BINDIR =	${PREFIX}/bin

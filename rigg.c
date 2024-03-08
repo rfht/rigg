@@ -25,8 +25,7 @@
 
 #include "rigg.h"
 
-/* XXX: PERMISSIVE by default due to cases needing /home access. */
-unveilmode umode = PERMISSIVE;
+unveilmode umode = STRICT;
 
 int verbose = 0;
 

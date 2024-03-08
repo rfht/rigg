@@ -1,25 +1,14 @@
-REGRESS_TARGETS =	mono-visible mono-invisible mono-mkdir-wraptest
-
-CLEANFILES +=	*.exe
+# *Visible*:		interact with visible part of the unveil(2)'d filesystem
+# *Invisible*:		try to interact with invisible part of the unveil(2)'d filesystem
+#			should fail with ENOENT if unveil(2)'d correctly
+# *MkdirSpecial*:	Invisible directory, mkdir wrapper should return 0 anyway
+REGRESS_TARGETS =	MonoVisible.exe MonoInvisible.exe
+CLEANFILES +=		*.exe
+CSCFLAGS +=		/nologo
 
 .SUFFIXES: .cs .exe
 .cs.exe:
-	csc $<
-
-# interact with visible part of the unveil(2)'d filesystem
-mono-visible: MonoVisible.exe
-	rigg mono MonoVisible.exe
-
-# try to interact with invisible part of the unveil(2)'d filesystem
-# should fail with ENOENT if unveil(2)'d correctly
-mono-invisible: MonoInvisible.exe
-	#...
-	true
-
-# test mkdir wrapper for privileged unveil(2)'d directories:
-# /home, $HOME, $HOME/.local
-mono-mkdir-wraptest: MonoMkdirWrapTest.exe
-	#...
-	true
+	csc ${CSCFLAGS} $<
+	rigg mono $@
 
 .include <bsd.regress.mk>
