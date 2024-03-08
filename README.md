@@ -11,7 +11,7 @@ RIGG(1) - General Commands Manual
 \[**-u**&nbsp;*strict*&nbsp;|&nbsp;*permissive*&nbsp;|&nbsp;*none*]
 *engine*
 *file*
-\[*engine&nbsp;arguments*]
+\[*game&nbsp;arguments*]
 
 # DESCRIPTION
 
@@ -19,8 +19,7 @@ RIGG(1) - General Commands Manual
 serves as a thin,
 OpenBSD-adapted runtime wrapper for indie games based on certain engines
 (see
-*engine*)
-.
+*engine*).
 **rigg**
 handles visibility of files by using
 unveil(2)
@@ -88,9 +87,8 @@ See engine-specific documentation.
 
 Run Mono game
 *Game.exe*
-with
-**-windowed**
-flag:
+with a game-specific flag
+**-windowed**:
 
 	$ rigg mono Game.exe -windowed
 

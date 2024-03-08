@@ -10,7 +10,7 @@
 .Op Fl u Ar strict | permissive | none
 .Ar engine
 .Ar file
-.Op Ar engine arguments
+.Op Ar game arguments
 .Sh DESCRIPTION
 .Nm
 serves as a thin,
@@ -18,7 +18,7 @@ serves as a thin,
 .Po
 see
 .Ar engine
-.Pc .
+.Pc Ns .
 .Nm
 handles visibility of files by using
 .Xr unveil 2
@@ -76,9 +76,8 @@ See engine-specific documentation.
 .Sh EXAMPLES
 Run Mono game
 .Pa Game.exe
-with
-.Fl windowed
-flag:
+with a game-specific flag
+.Fl windowed :
 .Bd -literal -offset indent
 $ rigg mono Game.exe -windowed
 .Ed
