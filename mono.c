@@ -107,6 +107,7 @@ int mono(int argc, char** argv) {
 	char	config_dir[PATH_MAX];
 	char	localshare_dir[PATH_MAX];
 	char	mesa_shader_cache[PATH_MAX];
+	char	mono_userdir[PATH_MAX];		/* ~/.mono/ */
 	char	sndio_dir[PATH_MAX];
 	char	xauthority[PATH_MAX];
 	char	xcompose[PATH_MAX];
@@ -171,6 +172,12 @@ int mono(int argc, char** argv) {
 			err(1, "snprintf");
 		else {
 			unveil_err(mesa_shader_cache, "rwc");
+		}
+		if (snprintf(mono_userdir, sizeof(mono_userdir),
+			"%s/.mono", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(mono_userdir, "rwc");
 		}
 		if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
 			err(1, "snprintf");

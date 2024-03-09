@@ -181,7 +181,7 @@ int hl(int argc, pchar *argv[]) {
 	cl.t = ctx.code->functions[ctx.m->functions_indexes[ctx.m->code->entrypoint]].type;
 	cl.fun = ctx.m->functions_ptrs[ctx.m->code->entrypoint];
 	cl.hasValue = 0;
-	vprintf("setting up signal handler\n");
+	vprintf("setting up signal handler\n\n");
 	setup_handler();
 	hl_profile_setup(profile_count);
 
@@ -190,13 +190,12 @@ int hl(int argc, pchar *argv[]) {
 	unveil_quirk	uvq;
 	unveil_pair	uvp;
 	char		mesa_shader_cache[PATH_MAX];
+	char		sndio_dir[PATH_MAX];
 	char		xauthority[PATH_MAX];
 	char		uvq_fullpath[PATH_MAX];
 	char		*home_dir;
 	char		*match;
 	char		*uvq_ev;
-
-	vprintf("\n");
 
 	if (umode >= STRICT) {
 		/* quirks first */
@@ -228,6 +227,11 @@ int hl(int argc, pchar *argv[]) {
 		}
 		else {
 			unveil_err(mesa_shader_cache, "rwc");
+		}
+		if (snprintf(sndio_dir, sizeof(sndio_dir), "%s/.sndio", home_dir) < 0)
+			err(1, "snprintf");
+		else {
+			unveil_err(sndio_dir, "rwc");
 		}
 		if (snprintf(xauthority, sizeof(xauthority), "%s/.Xauthority", home_dir) < 0) {
 			err(1, "snprintf");
