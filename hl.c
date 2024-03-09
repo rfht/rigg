@@ -36,12 +36,13 @@
 #include "rigg.h"
 #include "rigg_unveil.h"
 
-typedef char pchar;
 #define pprintf printf
 #define pfopen fopen
 #define pcompare strcmp
 #define ptoi atoi
 #define PSTR(x) x
+
+typedef char pchar;
 
 static const unveil_pair unveils[] = {
 	{ "/usr/lib",		"r"	},
@@ -128,6 +129,7 @@ static void handle_signal( int signum ) {
 	fflush(stdout);
 	raise(signum);
 }
+
 static void setup_handler(void) {
 	struct sigaction act;
 	act.sa_sigaction = NULL;
@@ -154,7 +156,7 @@ int hl(int argc, pchar *argv[]) {
 	vprintf("launching global init\n");
 	hl_global_init();
 	hl_sys_init((void**)argv,argc,file);
-	vprintf("registring main thread\n");
+	vprintf("registering main thread\n");
 	hl_register_thread(&ctx);
 	ctx.file = file;
 	vprintf("loading code from %s\n", file);
@@ -163,6 +165,7 @@ int hl(int argc, pchar *argv[]) {
 		if( error_msg ) printf("%s\n", error_msg);
 		return 1;
 	}
+
 	vprintf("initializing module\n");
 	ctx.m = hl_module_alloc(ctx.code);
 	if( ctx.m == NULL )
@@ -260,6 +263,7 @@ int hl(int argc, pchar *argv[]) {
 
 	vprintf("entering main program\n\n");
 	ctx.ret = hl_dyn_call_safe(&cl,NULL,0,&isExc);
+
 	vprintf("cleaning up...\n");
 	hl_profile_end();
 	if( isExc ) {
@@ -271,11 +275,14 @@ int hl(int argc, pchar *argv[]) {
 		hl_global_free();
 		return 1;
 	}
-	vprintf("main program concluded without exception; cleaning up...\n");
+
+	vprintf("cleaning up some more...\n");
 	hl_module_free(ctx.m);
 	hl_free(&ctx.code->alloc);
+
 	// do not call hl_unregister_thread() or hl_global_free will display error 
 	// on global_lock if there are threads that are still running (such as debugger)
 	hl_global_free();
+
 	return 0;
 }
