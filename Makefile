@@ -14,6 +14,8 @@ COPTS +=	${HL_CFLAGS} ${MONO_CFLAGS}
 LDFLAGS +=	-L/usr/local/lib -Wl,-z,wxneeded -Wl,-z,nobtcfi
 LDADD +=	-lmonosgen-2.0 -lhl -lhl_module
 
+CLEANFILES +=	test/*.exe
+
 readme:
 	mandoc -T markdown rigg.1 > README.md
 
