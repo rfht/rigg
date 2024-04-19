@@ -2,7 +2,7 @@ RIGG(1) - General Commands Manual
 
 # NAME
 
-**rigg** - run indie games
+**rigg** - run independent games
 
 # SYNOPSIS
 
@@ -17,7 +17,7 @@ RIGG(1) - General Commands Manual
 
 **rigg**
 serves as a thin,
-OpenBSD-adapted runtime wrapper for indie games based on certain engines
+OpenBSD-adapted runtime wrapper for independent games based on certain engines
 (see
 *engine*).
 **rigg**
@@ -119,4 +119,4 @@ stat(2)
 */home*
 or other hidden directories.
 
-OpenBSD 7.5 - March 8, 2024
+OpenBSD 7.5 - April 19, 2024
