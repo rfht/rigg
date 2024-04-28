@@ -12,6 +12,8 @@ RIGG(1) - General Commands Manual
 *engine*
 *file*
 \[*game&nbsp;arguments*]
+**rigg**
+\[**-hl**]
 
 # DESCRIPTION
 
@@ -19,7 +21,8 @@ RIGG(1) - General Commands Manual
 serves as a thin,
 OpenBSD-adapted runtime wrapper for independent games based on certain engines
 (see
-*engine*).
+*engine*)
+.
 **rigg**
 handles visibility of files by using
 unveil(2)
@@ -35,7 +38,8 @@ Some basic engine configuration for
 OpenBSD
 like dllmap for
 mono(1)
-is included. More complex configuration like filesystem changes or
+is included.
+More complex configuration like filesystem changes or
 game-specific environment variables are out of scope.
 
 The arguments are as follows:
@@ -55,6 +59,14 @@ The arguments are as follows:
 > or
 > *hlboot.dat*
 > (hl).
+
+**-h**
+
+> Show usage information.
+
+**-l**
+
+> List the binaries of supported engines.
 
 **-u**
 
@@ -119,4 +131,4 @@ stat(2)
 */home*
 or other hidden directories.
 
-OpenBSD 7.5 - April 19, 2024
+OpenBSD 7.5 - April 28, 2024

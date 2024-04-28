@@ -25,6 +25,11 @@ typedef enum {
 	STRICT
 } unveilmode;
 
+static char *runtimes[2] = {
+	"hl",
+	"mono"
+};
+
 extern unveilmode umode;
 extern int verbose;
 

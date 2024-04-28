@@ -29,9 +29,9 @@ unveilmode umode = STRICT;
 
 int verbose = 0;
 
-__dead static int usage(void) {
+__dead static void usage(void) {
 	fprintf(stderr,
-	        "usage: rigg [-v] [-u strict|permissive|none] mono|hl file [arguments]\n"
+	        "usage:\trigg [-v] [-u strict|permissive|none] mono|hl file [arguments]\n\trigg [-hl]\n"
 	        );
 	exit(1);
 }
@@ -39,11 +39,13 @@ __dead static int usage(void) {
 int main(int argc, char** argv) {
 	int ch;
 
-	if (argc < 3)
-		(void)usage();
-
-	while ((ch = getopt(argc, argv, "hu:v")) != -1) {
+	while ((ch = getopt(argc, argv, "hlu:v")) != -1) {
 		switch (ch) {
+		case 'l':
+			for (size_t i = 0; i < sizeof(runtimes) / sizeof(runtimes[0]); i++) {
+				printf("%s\n", runtimes[i]);
+			}
+			exit(0);
 		case 'u':
 			if (strncmp(optarg, "none", 4) == 0)
 				umode = NONE;
@@ -59,11 +61,14 @@ int main(int argc, char** argv) {
 			break;
 		case 'h':
 		default:
-			(void)usage();
+			usage();
 		}
 	}
 	argc -= optind;
 	argv += optind;
+
+	if (argc < 1)
+		usage();
 
 	if (strncmp(argv[0], "mono", MAX_INPUT) == 0) {
 		return mono(argc - 1, argv + 1);

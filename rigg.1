@@ -11,6 +11,8 @@
 .Ar engine
 .Ar file
 .Op Ar game arguments
+.Nm rigg
+.Op Fl hl
 .Sh DESCRIPTION
 .Nm
 serves as a thin,
@@ -18,7 +20,7 @@ serves as a thin,
 .Po
 see
 .Ar engine
-.Pc Ns .
+.Pc .
 .Nm
 handles visibility of files by using
 .Xr unveil 2
@@ -34,7 +36,8 @@ Some basic engine configuration for
 .Ox
 like dllmap for
 .Xr mono 1
-is included. More complex configuration like filesystem changes or
+is included.
+More complex configuration like filesystem changes or
 game-specific environment variables are out of scope.
 .Pp
 The arguments are as follows:
@@ -51,6 +54,10 @@ The file to launch with the engine, e.g.
 or
 .Pa hlboot.dat
 .Pq hl .
+.It Fl h
+Show usage information.
+.It Fl l
+List the binaries of supported engines.
 .It Fl u
 Set unveil mode.
 .Ar strict
