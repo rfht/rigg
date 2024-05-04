@@ -1,9 +1,8 @@
 PROG =		rigg
 SRCS =		rigg.c rigg_unveil.c mono.c hl.c
 		
-PREFIX ?=	/usr/local
-BINDIR =	${PREFIX}/bin
-MANDIR =	${PREFIX}/man/man
+BINDIR ?=	/usr/local/bin
+MANDIR ?=	/usr/local/man/man
 WARNINGS ?=	Yes
 
 HL_CFLAGS ?=	-I/usr/local/include -I/usr/local/include/hl
