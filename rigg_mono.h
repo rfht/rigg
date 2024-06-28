@@ -95,6 +95,13 @@ const char *Dllmap = "<configuration>\
 		<dllentry dll=\"libstubborn.so\" name=\"GetModuleHandle\" target=\"int_0\"/>\
 	</dllmap>\
 \
+	<dllmap dll=\"ParisSteam.dll\">\
+		<dllentry dll=\"libstubborn.so\" name=\"ParisSteam_Init\" target=\"int_0\"/>\
+		<dllentry dll=\"libstubborn.so\" name=\"ParisSteam_RunCallbacks\" target=\"int_0\"/>\
+		<dllentry dll=\"libstubborn.so\" name=\"ParisSteam_Shutdown\" target=\"int_0\"/>\
+		<dllentry dll=\"libstubborn.so\" name=\"ParisSteamStats_StatsReady\" target=\"int_0\"/>\
+	</dllmap>\
+\
 	<dllmap dll=\"fmod_event.dll\">\
 		<dllentry dll=\"libstubborn.so\" name=\"FMOD_EventSystem_Create\" target=\"int_0\"/>\
 	</dllmap>\
