@@ -22,7 +22,11 @@
 #include "rigg.h"
 
 void unveil_err(const char *path, const char *permissions) {
-	vprintf(UNVEIL_VPRINT_FMT, path, permissions);
+	if (path == NULL && permissions == NULL) {
+		printf("unveil: future unveil calls disabled\n");
+	} else {
+		vprintf(UNVEIL_VPRINT_FMT, path, permissions);
+	}
 	if (unveil(path, permissions) == -1)
 		err(1, "unveil");
 }
